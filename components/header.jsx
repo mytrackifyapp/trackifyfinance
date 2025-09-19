@@ -7,7 +7,7 @@ import { PenBox, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
-import { ConnectButton } from "thirdweb/react";
+// import { ConnectButton } from "thirdweb/react";
 
 // Thirdweb config
 import { client } from "@/lib/thirdwebClient";
@@ -29,7 +29,7 @@ const Header = () => {
         </Link>
 
         {/* Wallet connect */}
-        <ConnectButton client={client} wallets={wallets} />
+        {/* <ConnectButton client={client} wallets={wallets} /> */}
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">

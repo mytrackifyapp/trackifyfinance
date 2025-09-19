@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import ThirdwebProviderClient from "@/components/ThirdwebProviderClient";
+// import ThirdwebProviderClient from "@/components/ThirdwebProviderClient";
 import "./globals.css";
 import Header from "../components/header";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
           <link rel="icon" href="/logo-sm.png" sizes="any" />
         </head>
         <body className={`${inter.className}`}>
-        <ThirdwebProviderClient>
+        {/* <ThirdwebProviderClient> */}
           <Header />
           <main className="min-h-screen">{children}</main>
           <Toaster richColors />
@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
               <p>2025 Trackify Finance</p>
             </div>
           </footer>
-          </ThirdwebProviderClient>
+          {/* </ThirdwebProviderClient> */}
         </body>
       </html>
     </ClerkProvider>
