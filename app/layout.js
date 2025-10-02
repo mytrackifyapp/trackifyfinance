@@ -15,8 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider
-    frontendApi={process.env.NEXT_PUBLIC_CLERK_FRONTEND_API}
-      navigate={(to) => window.history.pushState(null, "", to)}>
+    frontendApi={process.env.NEXT_PUBLIC_CLERK_FRONTEND_API}>
 
       <html lang="en">
         <head>
