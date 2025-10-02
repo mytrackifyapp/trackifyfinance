@@ -14,7 +14,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+    frontendApi={process.env.NEXT_PUBLIC_CLERK_FRONTEND_API}
+      navigate={(to) => window.history.pushState(null, "", to)}>
+
       <html lang="en">
         <head>
           <link rel="icon" href="/logo-sm.png" sizes="any" />
