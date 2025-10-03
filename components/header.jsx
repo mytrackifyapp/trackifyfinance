@@ -18,7 +18,7 @@ const Header = () => {
     <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/">
+        <Link href="https://www.mytrackify.com">
           <Image
             src={"/logo.png"}
             alt="Trackify Logo"
@@ -34,14 +34,14 @@ const Header = () => {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
           <SignedOut>
-            <a href="#features" className="text-gray-600 hover:text-blue-600">
-              Features
+            <a href="https://www.mytrackify.com" className="text-gray-600 hover:text-blue-600">
+                 Home
             </a>
             <a
-              href="#testimonials"
+              href="https://www.mytrackify.com/contact"
               className="text-gray-600 hover:text-blue-600"
             >
-              Testimonials
+              Reach US
             </a>
           </SignedOut>
         </div>
