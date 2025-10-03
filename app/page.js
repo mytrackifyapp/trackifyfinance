@@ -1,131 +1,142 @@
-import React from "react";
+"use client";
+
+import { useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
-import {
-  featuresData,
-  howItWorksData,
-  statsData,
-  testimonialsData,
-} from "@/data/landing";
-import HeroSection from "@/components/hero";
-import Link from "next/link";
 
-const LandingPage = () => {
+// Example preferences
+const goals = [
+  { id: "budgeting", label: "Budgeting" },
+  { id: "savings", label: "Savings Growth" },
+  { id: "crypto", label: "Crypto Tracking" },
+  { id: "investments", label: "Investments" },
+];
+
+export default function OnboardingPage() {
+  const { isSignedIn, user } = useUser();
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [selectedGoals, setSelectedGoals] = useState([]);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      // If user already finished onboarding, redirect directly
+      // For now, let’s always show onboarding when hitting `/`
+      // router.replace("/dashboard")
+    }
+  }, [isSignedIn, router]);
+
+  const toggleGoal = (goal) => {
+    setSelectedGoals((prev) =>
+      prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal]
+    );
+  };
+
+  const handleNext = () => {
+    if (step < 3) setStep(step + 1);
+    else router.push("/dashboard"); // final redirect
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <HeroSection />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+      <Card className="w-full max-w-lg shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">
+            {step === 1 && "Welcome to Trackify 🎉"}
+            {step === 2 && "Choose Your Goals"}
+            {step === 3 && "You're All Set!"}
+          </CardTitle>
+        </CardHeader>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {statsData.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-blue-600 mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600">{stat.label}</div>
+        <CardContent>
+          {/* Step 1 - Profile */}
+          {step === 1 && (
+            <div className="flex flex-col items-center space-y-4">
+              {user?.imageUrl && (
+                <Image
+                  src={user.imageUrl}
+                  alt="Profile"
+                  width={80}
+                  height={80}
+                  className="rounded-full border"
+                />
+              )}
+              <Input
+                placeholder="Enter your name"
+                value={name || user?.fullName || ""}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <p className="text-sm text-gray-500 text-center">
+                We’ll personalize your experience using your profile.
+              </p>
+            </div>
+          )}
+
+          {/* Step 2 - Goals */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <p className="text-center text-gray-600">
+                Select the areas you want Trackify to help you with:
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {goals.map((goal) => (
+                  <Button
+                    key={goal.id}
+                    variant={selectedGoals.includes(goal.id) ? "default" : "outline"}
+                    className={cn(
+                      "w-full",
+                      selectedGoals.includes(goal.id) && "bg-blue-600 text-white"
+                    )}
+                    onClick={() => toggleGoal(goal.id)}
+                  >
+                    {goal.label}
+                  </Button>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          )}
 
-      {/* Features Section */}
-      <section id="features" className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Everything you need to manage your finances
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuresData.map((feature, index) => (
-              <Card className="p-6" key={index}>
-                <CardContent className="space-y-4 pt-4">
-                  {feature.icon}
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+          {/* Step 3 - Confirmation */}
+          {step === 3 && (
+            <div className="flex flex-col items-center space-y-4">
+              <p className="text-lg text-gray-700 text-center">
+                Thanks, <span className="font-semibold">{name || user?.firstName}</span> 🎊
+              </p>
+              <p className="text-gray-600 text-center">
+                You’ve chosen:{" "}
+                {selectedGoals.length > 0
+                  ? selectedGoals.join(", ")
+                  : "No preferences yet"}
+              </p>
+              <p className="text-sm text-gray-500">
+                You can update this later in your settings.
+              </p>
+            </div>
+          )}
 
-      {/* How It Works Section */}
-      <section className="py-20 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {howItWorksData.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  {step.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-4">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16">
-            What Our Users Say
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonialsData.map((testimonial, index) => (
-              <Card key={index} className="p-6">
-                <CardContent className="pt-4">
-                  <div className="flex items-center mb-4">
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                    <div className="ml-4">
-                      <div className="font-semibold">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">
-                        {testimonial.role}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-gray-600">{testimonial.quote}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Take Control of Your Finances?
-          </h2>
-          <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who are already managing their finances
-            smarter with Welth
-          </p>
-          <Link href="/dashboard">
-            <Button
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-blue-50 animate-bounce"
-            >
-              Start Free Trial
+          {/* Navigation */}
+          <div className="mt-6 flex justify-between">
+            {step > 1 ? (
+              <Button variant="outline" onClick={() => setStep(step - 1)}>
+                Back
+              </Button>
+            ) : (
+              <div />
+            )}
+            <Button onClick={handleNext}>
+              {step < 3 ? "Next" : "Go to Dashboard"}
             </Button>
-          </Link>
-        </div>
-      </section>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default LandingPage;
+}
