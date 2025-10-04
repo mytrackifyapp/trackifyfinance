@@ -16,22 +16,17 @@ const aj = arcjet({
     shield({ mode: "LIVE" }),
     detectBot({
       mode: "LIVE",
-      allow: [
-        "CATEGORY:SEARCH_ENGINE",
-        "GO_HTTP", // Inngest
-      ],
+      allow: ["CATEGORY:SEARCH_ENGINE", "GO_HTTP"], // Inngest
     }),
   ],
 });
 
-// Clerk middleware (backend-safe)
-const clerk = authMiddleware({
-  afterAuth: async (auth, req) => {
-    if (!auth.userId && isProtectedRoute(req)) {
-      return auth.redirectToSignIn();
-    }
-    return NextResponse.next();
-  },
+// Clerk middleware (modern usage)
+const clerk = clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) {
+    auth().protect(); // 👈 blocks if not signed in
+  }
+  return NextResponse.next();
 });
 
 // Chain: Arcjet first, then Clerk
@@ -39,8 +34,7 @@ export default createMiddleware(aj, clerk);
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)", // Always run for API routes
+    "/(api|trpc)(.*)",
   ],
 };
