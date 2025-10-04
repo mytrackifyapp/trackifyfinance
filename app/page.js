@@ -94,7 +94,7 @@ export default function OnboardingPage() {
                     variant={selectedGoals.includes(goal.id) ? "default" : "outline"}
                     className={cn(
                       "w-full",
-                      selectedGoals.includes(goal.id) && "bg-blue-600 text-white"
+                      selectedGoals.includes(goal.id) && "bg-green-600 text-white"
                     )}
                     onClick={() => toggleGoal(goal.id)}
                   >

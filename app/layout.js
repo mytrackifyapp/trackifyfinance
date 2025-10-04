@@ -4,12 +4,14 @@ import "./globals.css";
 import Header from "../components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next"
+
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Trackfiy",
-  description: "One stop Finance Platform",
+  description: "Personal Finance Platform",
 };
 
 export default function RootLayout({ children }) {
@@ -32,6 +34,7 @@ export default function RootLayout({ children }) {
               <p>2025 Trackify Finance</p>
             </div>
           </footer>
+          <Analytics/>
           {/* </ThirdwebProviderClient> */}
         </body>
       </html>
