@@ -1,7 +1,6 @@
 // app/api/inngest/route.js
-
 import { serve } from "inngest/next";
-import {inngest} from "@/lib/inngest/client";
+import { inngest } from "@/lib/inngest/client";
 import {
   checkBudgetAlerts,
   generateMonthlyReports,
@@ -11,45 +10,41 @@ import {
 
 import arcjet, { shield, detectBot } from "@arcjet/next";
 
-// ✅ Configure Arcjet properly
+// Arcjet setup
 const aj = arcjet({
   key: process.env.ARCJET_KEY,
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
       mode: "LIVE",
-      allow: ["CATEGORY:SEARCH_ENGINE", "GO_HTTP"],
+      allow: ["CATEGORY:SEARCH_ENGINE", "GO_HTTP"], // Inngest bots
     }),
   ],
 });
 
-// ✅ Main route handler
-export const GET = async (req) => {
-  try {
-    // Protect route with Arcjet
+// Arcjet wrapper
+function withArcjet(handler) {
+  return async (req, ...rest) => {
     const decision = await aj.protect(req);
-    if (decision.isDenied()) {
+    if (decision?.isDenied?.()) {
       return new Response("Blocked by Arcjet", { status: 403 });
     }
+    return handler(req, ...rest);
+  };
+}
 
-    // ✅ Serve Inngest functions
-    const handler = serve({
-      client: inngest,
-      functions: [
-        processRecurringTransaction,
-        triggerRecurringTransactions,
-        generateMonthlyReports,
-        checkBudgetAlerts,
-      ],
-    });
+// Inngest + Arcjet
+export const GET = withArcjet(
+  serve({
+    client: inngest,
+    functions: [
+      processRecurringTransaction,
+      triggerRecurringTransactions,
+      generateMonthlyReports,
+      checkBudgetAlerts,
+    ],
+  }).GET
+);
 
-    return handler(req);
-  } catch (error) {
-    console.error("Error in inngest route:", error);
-    return new Response("Internal Server Error", { status: 500 });
-  }
-};
-
-// ✅ Reuse the same logic for POST and PUT
 export const POST = GET;
 export const PUT = GET;
