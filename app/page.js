@@ -15,6 +15,7 @@ const goals = [
   { id: "savings", label: "Savings Growth" },
   { id: "crypto", label: "Crypto Tracking" },
   { id: "investments", label: "Investments" },
+  { id: "Ai", label: "Financial Insights" },
 ];
 
 export default function OnboardingPage() {
