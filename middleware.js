@@ -7,12 +7,20 @@ const isProtectedRoute = createRouteMatcher([
   "/transaction(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
-  const { isSignedIn } = auth();
+export default clerkMiddleware(async (auth, req) => {
+  const { isSignedIn, userId } = await auth();
+
+  console.log("Middleware auth:", {
+    path: req.url,
+    isSignedIn,
+    userId,
+    protected: isProtectedRoute(req),
+  });
 
   if (isProtectedRoute(req) && !isSignedIn) {
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("redirect_url", req.url);
+    console.log("Redirecting to sign-in:", signInUrl.toString());
     return NextResponse.redirect(signInUrl);
   }
 
