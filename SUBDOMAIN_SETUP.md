@@ -2,6 +2,8 @@
 
 The application now supports subdomain-based product URLs like `my-product.mytrackify.com`.
 
+**Note:** The main application runs on `app.mytrackify.com`, and product subdomains are created directly on the root domain (`mytrackify.com`).
+
 ## How It Works
 
 1. **Product Slugs**: Each product automatically gets a URL-friendly slug generated from its name
@@ -31,7 +33,7 @@ mytrackify.com    →  Your server IP
 
 Add to your `.env.local` or production environment:
 ```env
-NEXT_PUBLIC_MAIN_DOMAIN=mytrackify.com
+NEXT_PUBLIC_MAIN_DOMAIN=app.mytrackify.com
 ```
 
 ### 3. Server Configuration

@@ -195,7 +195,7 @@ export default function OnboardingPage() {
             <CardTitle className="text-center text-3xl font-bold gradient-title">
               {step === 1 && "Welcome to Trackify! 🎉"}
               {step === 2 && "What are your goals?"}
-              {step === 3 && "You&apos;re All Set! ✨"}
+              {step === 3 && "You're All Set! ✨"}
             </CardTitle>
             <CardDescription className="text-center mt-2">
               {step === 1 && "Let's get you started with your financial journey"}
@@ -243,7 +243,7 @@ export default function OnboardingPage() {
                     autoFocus
                   />
                   <p className="text-xs text-muted-foreground text-center mt-2">
-                    We&apos;ll personalize your experience with this name
+                    We'll personalize your experience with this name
                   </p>
                 </div>
               </div>
@@ -316,7 +316,7 @@ export default function OnboardingPage() {
                     Welcome, <span className="gradient-title">{name || user?.firstName}</span>! 🎊
                   </p>
                   <p className="text-muted-foreground">
-                    You&apos;re ready to start managing your finances
+                    You're ready to start managing your finances
                   </p>
                 </div>
                 {selectedGoals.length > 0 && (

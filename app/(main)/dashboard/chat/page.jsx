@@ -14,7 +14,7 @@ export default function ChatWithAIPage() {
     {
       role: "assistant",
       content:
-        "Hi! I&apos;m Finna, your intelligent financial assistant. I&apos;m here to help you understand your finances, get personalized insights, and answer your questions—just like talking to a friend. What would you like to know?",
+        "Hi! I'm Finna, your intelligent financial assistant. I'm here to help you understand your finances, get personalized insights, and answer your questions—just like talking to a friend. What would you like to know?",
     },
   ]);
   const [input, setInput] = useState("");

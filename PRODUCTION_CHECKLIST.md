@@ -23,7 +23,7 @@
 
 ### Optional/Third-party Services
 - [ ] `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` - Thirdweb client ID (if using Web3 features)
-- [ ] `NEXT_PUBLIC_MAIN_DOMAIN` - Main domain for subdomain routing (defaults to "mytrackify.com")
+- [ ] `NEXT_PUBLIC_MAIN_DOMAIN` - Main domain for subdomain routing (defaults to "app.mytrackify.com")
 - [ ] `INNGEST_SIGNING_KEY` - Inngest signing key (for background jobs)
 - [ ] `INNGEST_EVENT_KEY` - Inngest event key (optional)
 
@@ -153,7 +153,7 @@ UPLOADTHING_SECRET=your_uploadthing_secret
 UPLOADTHING_APP_ID=your_uploadthing_app_id
 RESEND_API_KEY=your_resend_key
 ARCJET_KEY=your_arcjet_key
-NEXT_PUBLIC_MAIN_DOMAIN=mytrackify.com
+NEXT_PUBLIC_MAIN_DOMAIN=app.mytrackify.com
 ```
 
 ## 🐛 Potential Issues to Watch
