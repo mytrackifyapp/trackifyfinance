@@ -180,7 +180,7 @@ export default function OnboardingPage() {
                 key={s.number}
                 className={cn(
                   "text-xs font-medium transition-colors",
-                  step >= s.number ? "text-[#C1FF72]" : "text-muted-foreground"
+                  step >= s.number ? "text-gray-900 font-semibold" : "text-muted-foreground"
                 )}
               >
                 {s.title}
@@ -190,14 +190,14 @@ export default function OnboardingPage() {
         </div>
 
         {/* Main Card */}
-        <Card className="shadow-2xl border-[#C1FF72]/30 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-[#C1FF72]/10 via-[#C1FF72]/5 to-[#A8E063]/10 border-b">
-            <CardTitle className="text-center text-3xl font-bold gradient-title">
+        <Card className="shadow-2xl border-gray-200 overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
+            <CardTitle className="text-center text-3xl font-bold text-gray-900">
               {step === 1 && "Welcome to Trackify! 🎉"}
               {step === 2 && "What are your goals?"}
               {step === 3 && "You're All Set! ✨"}
             </CardTitle>
-            <CardDescription className="text-center mt-2">
+            <CardDescription className="text-center mt-2 text-gray-600">
               {step === 1 && "Let's get you started with your financial journey"}
               {step === 2 && "Select all that apply (you can change these later)"}
               {step === 3 && "Ready to take control of your finances"}
@@ -229,7 +229,7 @@ export default function OnboardingPage() {
                   )}
                 </div>
                 <div className="w-full max-w-md space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Your Name</label>
+                  <label className="text-sm font-medium text-gray-900">Your Name</label>
                   <Input
                     placeholder="Enter your name"
                     value={name || user?.fullName || ""}
@@ -313,15 +313,15 @@ export default function OnboardingPage() {
                 </div>
                 <div className="text-center space-y-2">
                   <p className="text-2xl font-bold text-gray-900">
-                    Welcome, <span className="gradient-title">{name || user?.firstName}</span>! 🎊
+                    Welcome, <span className="text-gray-900">{name || user?.firstName}</span>! 🎊
                   </p>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     You're ready to start managing your finances
                   </p>
                 </div>
                 {selectedGoals.length > 0 && (
-                  <div className="w-full max-w-md p-4 bg-gradient-to-br from-[#C1FF72]/10 to-[#A8E063]/5 rounded-lg border border-[#C1FF72]/30">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Your selected goals:</p>
+                  <div className="w-full max-w-md p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-sm font-medium text-gray-900 mb-2">Your selected goals:</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedGoals.map((goalId) => {
                         const goal = goals.find((g) => g.id === goalId);
@@ -388,7 +388,7 @@ export default function OnboardingPage() {
                 localStorage.setItem("onboarding_completed", "true");
                 router.push("/dashboard");
               }}
-              className="hover:text-[#C1FF72] transition-colors underline"
+              className="hover:text-gray-900 transition-colors underline"
             >
               Skip onboarding for now
             </button>
