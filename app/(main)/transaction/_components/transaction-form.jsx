@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { format as formatDate } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
@@ -41,7 +41,7 @@ export function AddTransactionForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
-  const { format } = useCurrency();
+  const { format: formatCurrency } = useCurrency();
 
   const {
     register,
@@ -120,7 +120,7 @@ export function AddTransactionForm({
       reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
-  }, [transactionResult, transactionLoading, editMode]);
+  }, [transactionResult, transactionLoading, editMode, reset, router]);
 
   const type = watch("type");
   const isRecurring = watch("isRecurring");
@@ -182,7 +182,7 @@ export function AddTransactionForm({
             <SelectContent>
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
-                  {account.name} ({format(parseFloat(account.balance))})
+                  {account.name} ({formatCurrency(parseFloat(account.balance))})
                 </SelectItem>
               ))}
               <CreateAccountDrawer>
@@ -226,30 +226,60 @@ export function AddTransactionForm({
 
       {/* Date */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Date</label>
+        <label className="text-sm font-medium text-gray-900">Date</label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                "w-full pl-3 text-left font-normal",
-                !date && "text-muted-foreground"
+                "w-full justify-start text-left font-normal h-12",
+                !date && "text-muted-foreground",
+                "hover:bg-gray-50 border-gray-300"
               )}
             >
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              <CalendarIcon className="mr-3 h-5 w-5 text-gray-500" />
+              {date ? (
+                <span className="text-gray-900 font-medium">
+                  {formatDate(date, "PPP")}
+                </span>
+              ) : (
+                <span className="text-gray-500">Pick a date</span>
+              )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0 shadow-xl border border-gray-200 rounded-lg bg-white" align="start">
             <Calendar
               mode="single"
               selected={date}
-              onSelect={(date) => setValue("date", date)}
+              onSelect={(selectedDate) => {
+                setValue("date", selectedDate);
+              }}
               disabled={(date) =>
                 date > new Date() || date < new Date("1900-01-01")
               }
               initialFocus
+              className="p-4"
             />
+            <div className="px-4 pb-3 pt-2 border-t bg-gray-50/50 flex justify-between items-center rounded-b-lg">
+              <button
+                type="button"
+                onClick={() => setValue("date", new Date())}
+                className="text-xs text-gray-700 hover:text-gray-900 font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-gray-200"
+              >
+                Today
+              </button>
+              {date && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue("date", new Date());
+                  }}
+                  className="text-xs text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5 rounded-md hover:bg-gray-200"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </PopoverContent>
         </Popover>
         {errors.date && (

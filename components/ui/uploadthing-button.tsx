@@ -44,7 +44,7 @@ export function UploadthingButton({
           </Button>
         </div>
       ) : (
-        <div className="border-2 border-dashed rounded-md p-6">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
           <UploadButton
             endpoint={endpoint}
             onClientUploadComplete={(res) => {
@@ -64,16 +64,16 @@ export function UploadthingButton({
               button({ ready, isUploading }) {
                 if (isUploading || uploading) {
                   return (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2 text-gray-900 font-semibold">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span>Uploading...</span>
                     </div>
                   );
                 }
                 if (ready) {
-                  return "Choose Image";
+                  return <span className="text-gray-900 font-semibold">Choose Image</span>;
                 }
-                return "Getting ready...";
+                return <span className="text-gray-600">Getting ready...</span>;
               },
               allowedContent({ ready, isUploading }) {
                 if (!ready) return "Checking what you allow";

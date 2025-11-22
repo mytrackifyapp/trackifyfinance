@@ -169,3 +169,26 @@ html {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   opacity: 0.8;
 }
+
+/* UploadThing Button Styling */
+.ut-button {
+  background: linear-gradient(to right, #C1FF72, #A8E063) !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 0.375rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.2s !important;
+  border: none !important;
+}
+
+.ut-button:hover {
+  background: linear-gradient(to right, #A8E063, #C1FF72) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px);
+}
+
+.ut-uploading .ut-button {
+  background: #9CA3AF !important;
+  cursor: not-allowed !important;
+}
