@@ -98,6 +98,7 @@ export async function createAccount(data) {
     const serializedAccount = serializeTransaction(account);
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/accounting");
     return { success: true, data: serializedAccount };
   } catch (error) {
     throw new Error(error.message);

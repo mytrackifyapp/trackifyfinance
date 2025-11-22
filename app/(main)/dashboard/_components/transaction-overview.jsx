@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { format } from "date-fns";
+import { format as formatDate } from "date-fns";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/components/currency-provider";
 
 const COLORS = [
   "#FF6B6B",
@@ -33,6 +34,7 @@ const COLORS = [
 ];
 
 export function DashboardOverview({ accounts, transactions }) {
+  const { format: formatCurrency } = useCurrency();
   const [selectedAccountId, setSelectedAccountId] = useState(
     accounts.find((a) => a.isDefault)?.id || accounts[0]?.id
   );
@@ -61,10 +63,13 @@ export function DashboardOverview({ accounts, transactions }) {
   // Group expenses by category
   const expensesByCategory = currentMonthExpenses.reduce((acc, transaction) => {
     const category = transaction.category;
+    const amount = typeof transaction.amount === 'number' 
+      ? transaction.amount 
+      : parseFloat(transaction.amount || 0);
     if (!acc[category]) {
       acc[category] = 0;
     }
-    acc[category] += transaction.amount;
+    acc[category] += amount;
     return acc;
   }, {});
 
@@ -117,7 +122,7 @@ export function DashboardOverview({ accounts, transactions }) {
                       {transaction.description || "Untitled Transaction"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {format(new Date(transaction.date), "PP")}
+                      {formatDate(new Date(transaction.date), "PP")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -134,7 +139,9 @@ export function DashboardOverview({ accounts, transactions }) {
                       ) : (
                         <ArrowUpRight className="mr-1 h-4 w-4" />
                       )}
-                      ${transaction.amount.toFixed(2)}
+                      {formatCurrency(typeof transaction.amount === 'number' 
+                        ? transaction.amount 
+                        : parseFloat(transaction.amount || 0))}
                     </div>
                   </div>
                 </div>
@@ -167,7 +174,7 @@ export function DashboardOverview({ accounts, transactions }) {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, value }) => `${name}: $${value.toFixed(2)}`}
+                    label={({ name, value }) => `${name}: ${formatCurrency(typeof value === 'number' ? value : parseFloat(value || 0))}`}
                   >
                     {pieChartData.map((entry, index) => (
                       <Cell
@@ -177,7 +184,7 @@ export function DashboardOverview({ accounts, transactions }) {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => `$${value.toFixed(2)}`}
+                    formatter={(value) => [formatCurrency(typeof value === 'number' ? value : parseFloat(value || 0)), undefined]}
                     contentStyle={{
                       backgroundColor: "hsl(var(--popover))",
                       border: "1px solid hsl(var(--border))",

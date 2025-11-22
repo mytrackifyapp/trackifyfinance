@@ -103,6 +103,7 @@ export async function bulkDeleteTransactions(transactionIds) {
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/accounting");
     revalidatePath("/account/[id]");
 
     return { success: true };
@@ -143,6 +144,7 @@ export async function updateDefaultAccount(accountId) {
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/accounting");
     return { success: true, data: serializeTransaction(account) };
   } catch (error) {
     return { success: false, error: error.message };

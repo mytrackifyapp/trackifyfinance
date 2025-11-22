@@ -16,8 +16,10 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { updateBudget } from "@/actions/budget";
+import { useCurrency } from "@/components/currency-provider";
 
 export function BudgetProgress({ initialBudget, currentExpenses }) {
+  const { format } = useCurrency();
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState(
     initialBudget?.amount?.toString() || ""
@@ -103,9 +105,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
               <>
                 <CardDescription>
                   {initialBudget
-                    ? `$${currentExpenses.toFixed(
-                        2
-                      )} of $${initialBudget.amount.toFixed(2)} spent`
+                    ? `${format(currentExpenses)} of ${format(initialBudget.amount)} spent`
                     : "No budget set"}
                 </CardDescription>
                 <Button

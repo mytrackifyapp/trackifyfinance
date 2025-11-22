@@ -5,6 +5,7 @@ import Header from "../components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next"
+import { CurrencyProvider } from "@/components/currency-provider";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,14 +27,21 @@ export default function RootLayout({ children }) {
         <body className={`${inter.className}`}>
         {/* <ThirdwebProviderClient> */}
           <Header />
-          <main className="min-h-screen">{children}</main>
+          <CurrencyProvider>
+            <main className="min-h-screen">{children}</main>
+          </CurrencyProvider>
           <Toaster richColors />
 
-          <footer className="bg-blue-50 py-12">
-            <div className="container mx-auto px-4 text-center text-gray-600">
-              <p>2025 Trackify Finance</p>
+          {/* <footer className="bg-blue-50/70 border-t border-blue-100 py-6">
+            <div className="container mx-auto px-4 flex items-center justify-between text-gray-600 text-sm">
+              <p className="font-medium">© 2025 Trackify Finance</p>
+              <div className="flex items-center gap-4">
+                <a href="/dashboard" className="hover:text-gray-900 transition">Dashboard</a>
+                <a href="/account" className="hover:text-gray-900 transition">Accounts</a>
+                <a href="/dashboard/settings" className="hover:text-gray-900 transition">Settings</a>
+              </div>
             </div>
-          </footer>
+          </footer> */}
           <Analytics/>
           {/* </ThirdwebProviderClient> */}
         </body>

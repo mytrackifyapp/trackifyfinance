@@ -1,34 +1,34 @@
-import DashboardPage from "./page"
-import { BarLoader } from "react-spinners"
-import { Suspense } from "react"
+"use client";
 
-export default function Layout() {
-  return (
+import { usePathname } from "next/navigation";
 
-      <div className="flex min-h-screen">
-    
-
-        {/* Main content area */}
-        <main className="flex-1 px-5">
-          {/* Sidebar toggle button (useful on mobile or collapsed state) */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-    
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight gradient-title">
-                Dashboard
-              </h1>
-            </div>
-          </div>
-
-          <Suspense
-            fallback={
-              <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
-            }
-          >
-            <DashboardPage />
-          </Suspense>
-        </main>
-      </div>
+export default function Layout({ children }) {
+  const pathname = usePathname();
   
+  // Map paths to their respective titles
+  const getTitle = () => {
+    if (pathname === "/dashboard") return "Dashboard";
+    if (pathname === "/dashboard/accounting") return "Accounting";
+    if (pathname === "/dashboard/chat") return "Finna";
+    if (pathname === "/dashboard/invoice") return "Invoice";
+    if (pathname === "/dashboard/seller") return "Seller Dashboard";
+    if (pathname === "/dashboard/settings") return "Settings";
+    if (pathname === "/dashboard/dictionary") return "Finance Dictionary";
+    return "Dashboard"; // fallback
+  };
+
+  return (
+    <div className="flex min-h-screen">
+      <main className="flex-1 px-5">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight gradient-title">
+              {getTitle()}
+            </h1>
+          </div>
+        </div>
+        {children}
+      </main>
+    </div>
   )
 }
