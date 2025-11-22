@@ -1,14 +1,11 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { checkUser } from "./lib/checkUser";
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/account(.*)",
   "/transaction(.*)",
 ]);
-
-const isOnboardingRoute = createRouteMatcher(["/"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
@@ -61,35 +58,8 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // For authenticated users accessing protected routes, check onboarding status
-  if (userId && isProtectedRoute(req)) {
-    try {
-      // Only check onboarding for dashboard routes (not account/transaction which might be accessed differently)
-      if (req.nextUrl.pathname.startsWith("/dashboard")) {
-        const user = await checkUser();
-        
-        // If user doesn't exist yet or onboarding not completed, redirect to onboarding
-        if (!user || !user.onboardingCompleted) {
-          // Don't redirect if already on onboarding page (avoid loops)
-          if (!isOnboardingRoute(req)) {
-            const onboardingUrl = new URL("/", req.url);
-            if (process.env.NODE_ENV === "development" && process.env.DEBUG_MIDDLEWARE === "true") {
-              console.log("Redirecting to onboarding:", { userId, hasUser: !!user, onboardingCompleted: user?.onboardingCompleted });
-            }
-            return NextResponse.redirect(onboardingUrl);
-          }
-        }
-      }
-    } catch (error) {
-      // If there's an error checking user, redirect to onboarding to be safe
-      // This prevents server errors on first signup
-      console.error("Error checking onboarding status in middleware:", error);
-      if (!isOnboardingRoute(req)) {
-        const onboardingUrl = new URL("/", req.url);
-        return NextResponse.redirect(onboardingUrl);
-      }
-    }
-  }
+  // Note: Onboarding check is handled in app/(main)/layout.js to avoid Edge Function size limits
+  // (Prisma is too large for Edge Functions)
 
   return NextResponse.next();
 });

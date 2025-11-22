@@ -1,4 +1,6 @@
 import React from "react";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import {
   SidebarProvider,
@@ -18,8 +20,29 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { Calculator, MessageSquare, FileText, Settings, LayoutDashboard, Store, Sparkles } from "lucide-react";
+import { checkUser } from "@/lib/checkUser";
 
-const MainLayout = ({ children }) => {
+const MainLayout = async ({ children }) => {
+  const { userId } = await auth();
+  
+  // Check onboarding status for authenticated users accessing dashboard routes
+  // This runs in Node.js runtime (not Edge), so Prisma is fine here
+  if (userId) {
+    try {
+      const user = await checkUser();
+      
+      // If user doesn't exist yet or onboarding not completed, redirect to onboarding
+      if (!user || !user.onboardingCompleted) {
+        redirect("/");
+      }
+    } catch (error) {
+      // If there's an error checking user, redirect to onboarding to be safe
+      // This prevents server errors on first signup
+      console.error("Error checking user in layout:", error);
+      redirect("/");
+    }
+  }
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="offcanvas" className="bg-sidebar">
