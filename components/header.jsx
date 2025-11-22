@@ -9,9 +9,9 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 // import { ConnectButton } from "thirdweb/react";
 
-// Thirdweb config
-import { client } from "@/lib/thirdwebClient";
-import { wallets } from "@/lib/thirdwebWallets";
+// Thirdweb config (commented out until needed)
+// import { client } from "@/lib/thirdwebClient";
+// import { wallets } from "@/lib/thirdwebWallets";
 
 const Header = () => {
   return (

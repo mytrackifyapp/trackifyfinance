@@ -4,6 +4,7 @@ import { UploadButton } from "@/lib/uploadthing";
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { Button } from "./button";
+import Image from "next/image";
 
 interface UploadthingButtonProps {
   value?: string;
@@ -24,10 +25,13 @@ export function UploadthingButton({
     <div className={className}>
       {value ? (
         <div className="relative group">
-          <img
+          <Image
             src={value}
             alt="Uploaded"
+            width={800}
+            height={200}
             className="w-full h-48 object-cover rounded-md border"
+            unoptimized
           />
           <Button
             type="button"
@@ -71,7 +75,7 @@ export function UploadthingButton({
                 }
                 return "Getting ready...";
               },
-              allowedContent({ ready, fileTypes, isUploading }) {
+              allowedContent({ ready, isUploading }) {
                 if (!ready) return "Checking what you allow";
                 if (isUploading) return "Uploading...";
                 return `Images up to 4MB (PNG, JPG, GIF, WebP)`;

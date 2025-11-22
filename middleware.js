@@ -34,19 +34,24 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.rewrite(url);
   }
 
-  console.log("Middleware auth:", {
-    path: req.url,
-    hostname,
-    subdomain: subdomain || "none",
-    isSubdomain,
-    userId,
-    protected: isProtectedRoute(req),
-  });
+  // Debug logging (only in development)
+  if (process.env.NODE_ENV === "development" && process.env.DEBUG_MIDDLEWARE === "true") {
+    console.log("Middleware auth:", {
+      path: req.url,
+      hostname,
+      subdomain: subdomain || "none",
+      isSubdomain,
+      userId,
+      protected: isProtectedRoute(req),
+    });
+  }
 
   if (isProtectedRoute(req) && !userId) {
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("redirect_url", req.url);
-    console.log("Redirecting to sign-in:", signInUrl.toString());
+    if (process.env.NODE_ENV === "development" && process.env.DEBUG_MIDDLEWARE === "true") {
+      console.log("Redirecting to sign-in:", signInUrl.toString());
+    }
     return NextResponse.redirect(signInUrl);
   }
 

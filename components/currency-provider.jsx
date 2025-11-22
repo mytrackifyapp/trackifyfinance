@@ -10,7 +10,7 @@ import {
 
 const CurrencyContext = createContext({
   currency: DEFAULT_CURRENCY,
-  setCurrency: (_c) => {},
+  setCurrency: () => {},
   format: (amount) => formatCurrency(amount, DEFAULT_CURRENCY),
 });
 
