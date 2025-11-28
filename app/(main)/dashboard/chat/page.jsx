@@ -189,7 +189,7 @@ export default function ChatWithAIPage() {
           </div>
         )}
         <div
-          className={`max-w-[85%] rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-lg backdrop-blur-sm transition-all ${
+          className={`max-w-[85%] sm:max-w-[75%] rounded-3xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm leading-relaxed shadow-lg backdrop-blur-sm transition-all break-words ${
             isAssistant
               ? "bg-gradient-to-br from-[#C1FF72]/10 via-[#C1FF72]/5 to-[#A8E063]/10 text-gray-900 border border-[#C1FF72]/30"
               : "bg-white/90 text-gray-900 border border-gray-200/50 shadow-gray-200/20"
@@ -229,7 +229,7 @@ export default function ChatWithAIPage() {
         {/* Header removed per user request */}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card className="h-[75vh] flex flex-col overflow-hidden backdrop-blur supports-[backdrop-filter]:bg-white/40 border-[#C1FF72]/30 shadow-xl">
             <CardHeader className="border-b bg-gradient-to-r from-[#C1FF72]/10 via-[#C1FF72]/5 to-[#A8E063]/10 backdrop-blur-sm">
@@ -300,8 +300,8 @@ export default function ChatWithAIPage() {
             </CardContent>
           </Card>
           <div className="mt-4">
-            <div className="rounded-3xl border-2 border-[#C1FF72]/30 bg-gradient-to-br from-white/80 to-[#C1FF72]/10 backdrop-blur-md px-4 py-3 shadow-lg shadow-[#C1FF72]/10 focus-within:ring-2 focus-within:ring-[#C1FF72]/50 focus-within:border-[#C1FF72]/70 transition-all">
-              <div className="flex items-end gap-3">
+            <div className="rounded-3xl border-2 border-[#C1FF72]/30 bg-gradient-to-br from-white/80 to-[#C1FF72]/10 backdrop-blur-md px-3 sm:px-4 py-2.5 sm:py-3 shadow-lg shadow-[#C1FF72]/10 focus-within:ring-2 focus-within:ring-[#C1FF72]/50 focus-within:border-[#C1FF72]/70 transition-all">
+              <div className="flex items-end gap-2 sm:gap-3">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -314,7 +314,7 @@ export default function ChatWithAIPage() {
                   }}
                   rows={1}
                   placeholder="Ask Finna anything about your finances..."
-                  className="min-h-[44px] max-h-[120px] w-full resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-gray-400"
+                  className="min-h-[44px] max-h-[120px] w-full resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-gray-400 break-words"
                 />
                 <Button 
                   onClick={onSend} 

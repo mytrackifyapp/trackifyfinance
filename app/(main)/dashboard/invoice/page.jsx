@@ -190,11 +190,11 @@ export default function InvoicePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between -mt-4 mb-2">
-        <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-2 mb-2">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Create and manage professional invoices for your business
         </p>
-        <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
+        <Button onClick={() => setShowForm(true)} className="flex items-center gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Create Invoice
         </Button>
@@ -208,7 +208,7 @@ export default function InvoicePage() {
       )}
 
       {previewInvoice && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto relative">
             <Button
               variant="ghost"

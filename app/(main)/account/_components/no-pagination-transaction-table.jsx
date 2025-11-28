@@ -11,7 +11,7 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format as formatDate } from "date-fns";
 import { toast } from "sonner";
 
 import {
@@ -325,7 +325,7 @@ export function NoPaginationTransactionTable({ transactions }) {
                     />
                   </TableCell>
                   <TableCell>
-                    {format(new Date(transaction.date), "PP")}
+                    {formatDate(new Date(transaction.date), "PP")}
                   </TableCell>
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell className="capitalize">
@@ -370,7 +370,7 @@ export function NoPaginationTransactionTable({ transactions }) {
                             <div className="text-sm">
                               <div className="font-medium">Next Date:</div>
                               <div>
-                                {format(
+                                {formatDate(
                                   new Date(transaction.nextRecurringDate),
                                   "PPP"
                                 )}

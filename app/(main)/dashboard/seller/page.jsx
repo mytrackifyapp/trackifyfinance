@@ -160,11 +160,11 @@ export default function SellerDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between -mt-4 mb-2">
-        <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-2 mb-2">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Manage your digital products and track sales
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex items-center gap-2 border rounded-md p-1">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
@@ -189,7 +189,7 @@ export default function SellerDashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Products</CardDescription>
@@ -241,7 +241,7 @@ export default function SellerDashboardPage() {
 
       {/* Product Preview Modal */}
       {previewProduct && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto relative">
             <ProductPreview
               product={previewProduct}
@@ -279,7 +279,8 @@ export default function SellerDashboardPage() {
       ) : (
         <Card>
           <CardContent className="p-0">
-            <Table>
+            <div className="overflow-x-auto">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Product</TableHead>
@@ -363,6 +364,7 @@ export default function SellerDashboardPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       )}

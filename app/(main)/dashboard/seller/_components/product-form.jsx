@@ -91,7 +91,7 @@ export function ProductForm({ product, onSave, onCancel }) {
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Product Information</h3>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">Product Name *</label>
                 <Input
@@ -203,7 +203,7 @@ export function ProductForm({ product, onSave, onCancel }) {
           {/* Payment & Delivery */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Payment & Delivery</h3>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">Payment Link *</label>
                 <Input

@@ -25,20 +25,14 @@ import { checkUser } from "@/lib/checkUser";
 const MainLayout = async ({ children }) => {
   const { userId } = await auth();
   
-  // Check onboarding status for authenticated users accessing dashboard routes
-  // This runs in Node.js runtime (not Edge), so Prisma is fine here
+  // Only check onboarding for authenticated users accessing dashboard routes
+  // The (main) route group includes dashboard routes, so we check here
   if (userId) {
-    try {
-      const user = await checkUser();
-      
-      // If user doesn't exist yet or onboarding not completed, redirect to onboarding
-      if (!user || !user.onboardingCompleted) {
-        redirect("/");
-      }
-    } catch (error) {
-      // If there's an error checking user, redirect to onboarding to be safe
-      // This prevents server errors on first signup
-      console.error("Error checking user in layout:", error);
+    const user = await checkUser();
+    
+    // If user doesn't exist yet or onboarding not completed, redirect to onboarding
+    // Don't wrap redirect in try-catch - let NEXT_REDIRECT propagate naturally
+    if (!user || !user.onboardingCompleted) {
       redirect("/");
     }
   }
@@ -117,12 +111,12 @@ const MainLayout = async ({ children }) => {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <div className="container mx-auto mt-32 px-4">
-          <div className="flex items-center gap-3 mb-4">
-            <SidebarTrigger className="border border-gray-200" />
-            <h1 className="text-xl font-semibold">Menu</h1>
+        <div className="container mx-auto pt-20 sm:pt-24 px-4 overflow-x-hidden">
+          <div className="flex items-center gap-3 mb-6">
+            <SidebarTrigger className="border border-gray-200 flex-shrink-0" />
+            <h1 className="text-xl font-semibold break-words">Menu</h1>
           </div>
-          {children}
+          <div className="overflow-x-hidden">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

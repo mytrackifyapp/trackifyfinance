@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "../components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
-import { Analytics } from "@vercel/analytics/next"
+import { AnalyticsProvider } from "@/components/analytics-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 
 
@@ -42,7 +42,7 @@ export default function RootLayout({ children }) {
               </div>
             </div>
           </footer> */}
-          <Analytics/>
+          <AnalyticsProvider />
           {/* </ThirdwebProviderClient> */}
         </body>
       </html>

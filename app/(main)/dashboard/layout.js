@@ -18,16 +18,16 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <main className="flex-1 px-5">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight gradient-title">
+    <div className="flex min-h-screen overflow-x-hidden">
+      <main className="flex-1 px-4 sm:px-5 min-w-0">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold tracking-tight gradient-title break-words">
               {getTitle()}
             </h1>
           </div>
         </div>
-        {children}
+        <div className="overflow-x-hidden">{children}</div>
       </main>
     </div>
   )

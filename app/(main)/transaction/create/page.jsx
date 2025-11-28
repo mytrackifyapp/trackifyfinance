@@ -4,7 +4,8 @@ import { AddTransactionForm } from "../_components/transaction-form";
 import { getTransaction } from "@/actions/transaction";
 
 export default async function AddTransactionPage({ searchParams }) {
-  const accounts = await getUserAccounts();
+  const accountsData = await getUserAccounts();
+  const accounts = Array.isArray(accountsData) ? accountsData : [];
   const editId = searchParams?.edit;
 
   let initialData = null;
@@ -14,7 +15,7 @@ export default async function AddTransactionPage({ searchParams }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-5">
+    <div className="max-w-3xl mx-auto px-4 sm:px-5">
       <div className="flex justify-center md:justify-normal mb-8">
     
       <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-lime-300 to-emerald-400 bg-clip-text text-transparent">Add Transaction</h1>

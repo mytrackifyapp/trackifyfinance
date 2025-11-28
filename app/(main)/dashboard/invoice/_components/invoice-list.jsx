@@ -44,7 +44,8 @@ export function InvoiceList({ invoices, onPreview, onDelete, onDownload }) {
   return (
     <Card>
       <CardContent className="p-0">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Invoice #</TableHead>
@@ -113,6 +114,7 @@ export function InvoiceList({ invoices, onPreview, onDelete, onDownload }) {
             })}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );

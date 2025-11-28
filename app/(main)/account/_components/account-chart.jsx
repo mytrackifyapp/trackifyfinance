@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { format as formatDate, subDays, startOfDay, endOfDay } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrency } from "@/components/currency-provider";
 import {
@@ -32,7 +32,7 @@ const DATE_RANGES = {
 
 export function AccountChart({ transactions }) {
   const [dateRange, setDateRange] = useState("1M");
-  const { format } = useCurrency();
+  const { format: formatCurrency } = useCurrency();
 
   const filteredData = useMemo(() => {
     const range = DATE_RANGES[dateRange];
@@ -48,22 +48,27 @@ export function AccountChart({ transactions }) {
 
     // Group transactions by date
     const grouped = filtered.reduce((acc, transaction) => {
-      const date = format(new Date(transaction.date), "MMM dd");
-      if (!acc[date]) {
-        acc[date] = { date, income: 0, expense: 0 };
+      const dateKey = new Date(transaction.date).toISOString().split('T')[0]; // Use ISO date as key for proper sorting
+      if (!acc[dateKey]) {
+        acc[dateKey] = { 
+          dateKey, 
+          date: formatDate(new Date(transaction.date), "MMM dd"), 
+          income: 0, 
+          expense: 0 
+        };
       }
       if (transaction.type === "INCOME") {
-        acc[date].income += transaction.amount;
+        acc[dateKey].income += transaction.amount;
       } else {
-        acc[date].expense += transaction.amount;
+        acc[dateKey].expense += transaction.amount;
       }
       return acc;
     }, {});
 
-    // Convert to array and sort by date
+    // Convert to array and sort by date (using dateKey which is ISO format)
     return Object.values(grouped).sort(
-      (a, b) => new Date(a.date) - new Date(b.date)
-    );
+      (a, b) => new Date(a.dateKey) - new Date(b.dateKey)
+    ).map(({ dateKey, ...rest }) => rest); // Remove dateKey, keep only date string for display
   }, [transactions, dateRange]);
 
   // Calculate totals for the selected period
@@ -101,13 +106,13 @@ export function AccountChart({ transactions }) {
           <div className="text-center">
             <p className="text-muted-foreground">Total Income</p>
             <p className="text-lg font-bold text-green-500">
-              {format(totals.income)}
+              {formatCurrency(totals.income)}
             </p>
           </div>
           <div className="text-center">
             <p className="text-muted-foreground">Total Expenses</p>
             <p className="text-lg font-bold text-red-500">
-              {format(totals.expense)}
+              {formatCurrency(totals.expense)}
             </p>
           </div>
           <div className="text-center">
@@ -119,7 +124,7 @@ export function AccountChart({ transactions }) {
                   : "text-red-500"
               }`}
             >
-              {format(totals.income - totals.expense)}
+              {formatCurrency(totals.income - totals.expense)}
             </p>
           </div>
         </div>
@@ -140,10 +145,10 @@ export function AccountChart({ transactions }) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => format(value)}
+                tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip
-                formatter={(value) => [format(value), undefined]}
+                formatter={(value) => [formatCurrency(value), undefined]}
                 contentStyle={{
                   backgroundColor: "hsl(var(--popover))",
                   border: "1px solid hsl(var(--border))",

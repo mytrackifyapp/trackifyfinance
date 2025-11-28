@@ -24,7 +24,11 @@ export async function getUserAccounts() {
 
   // 🔑 ensures Clerk user exists in DB
   const user = await checkUser();
-  if (!user) throw new Error("User not found");
+  if (!user) {
+    // Return empty array instead of throwing error to prevent page crashes
+    // The layout/page will handle redirecting to onboarding
+    return [];
+  }
 
   try {
     const accounts = await db.account.findMany({
@@ -41,7 +45,12 @@ export async function getUserAccounts() {
 
     return accounts.map(serializeTransaction);
   } catch (error) {
-    console.error(error.message);
+    // Only log in development to avoid cluttering logs
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error in getUserAccounts:", error.message || error);
+    }
+    // Return empty array instead of throwing to prevent page crashes
+    return [];
   }
 }
 
@@ -111,12 +120,25 @@ export async function getDashboardData() {
 
   // 🔑 ensures user exists in DB
   const user = await checkUser();
-  if (!user) throw new Error("User not found");
+  if (!user) {
+    // Return empty array instead of throwing error to prevent page crashes
+    // The layout/page will handle redirecting to onboarding
+    return [];
+  }
 
-  const transactions = await db.transaction.findMany({
-    where: { userId: user.id },
-    orderBy: { date: "desc" },
-  });
+  try {
+    const transactions = await db.transaction.findMany({
+      where: { userId: user.id },
+      orderBy: { date: "desc" },
+    });
 
-  return transactions.map(serializeTransaction);
+    return transactions.map(serializeTransaction);
+  } catch (error) {
+    // Only log in development to avoid cluttering logs
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error in getDashboardData:", error.message || error);
+    }
+    // Return empty array instead of throwing to prevent page crashes
+    return [];
+  }
 }

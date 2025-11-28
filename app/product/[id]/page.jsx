@@ -77,9 +77,9 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pt-24 pb-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="grid gap-8 md:grid-cols-2">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pt-24 pb-12 overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
           {/* Product Image */}
           <div>
             {product.imageUrl ? (
@@ -123,7 +123,7 @@ export default function ProductPage() {
           <div className="space-y-6">
             <div>
               <div className="flex items-start justify-between gap-4 mb-2">
-                <h1 className="text-4xl font-bold">{product.name}</h1>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold break-words flex-1">{product.name}</h1>
                 <Badge variant={product.status === "active" ? "default" : "secondary"}>
                   {product.status}
                 </Badge>
@@ -133,7 +133,7 @@ export default function ProductPage() {
                   {product.category}
                 </Badge>
               )}
-              <div className="text-5xl font-bold my-6">{format(product.price || 0)}</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold my-4 sm:my-6 break-words">{format(product.price || 0)}</div>
             </div>
 
             {product.description && (

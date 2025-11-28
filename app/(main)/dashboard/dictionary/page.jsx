@@ -374,15 +374,15 @@ export default function DictionaryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between -mt-4 mb-2">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-2 mb-2">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          <Link href="/dashboard" className="flex-shrink-0">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <div>
-            <p className="text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="text-muted-foreground text-sm sm:text-base break-words">
               Comprehensive glossary of finance, crypto, startup, and business terms
             </p>
           </div>
@@ -427,7 +427,7 @@ export default function DictionaryPage() {
       </Card>
 
       {/* Category Pills */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
         {categories.map((cat) => (
           <button
             key={cat.value}
@@ -451,7 +451,7 @@ export default function DictionaryPage() {
       </div>
 
       {/* Terms Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {filteredTerms.length === 0 ? (
           <div className="col-span-full text-center py-16">
             <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />

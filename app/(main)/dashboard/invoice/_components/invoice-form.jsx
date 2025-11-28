@@ -98,7 +98,7 @@ export function InvoiceForm({ onSave, onCancel }) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Invoice Details */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium">Invoice Number</label>
               <Input
@@ -205,8 +205,8 @@ export function InvoiceForm({ onSave, onCancel }) {
             </div>
             <div className="space-y-3">
               {formData.items.map((item, index) => (
-                <div key={index} className="grid gap-4 md:grid-cols-12 items-end border p-3 rounded-lg">
-                  <div className="md:col-span-6 space-y-2">
+                <div key={index} className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-12 items-end border p-3 rounded-lg">
+                  <div className="sm:col-span-2 md:col-span-6 space-y-2">
                     <label className="text-sm font-medium">Description</label>
                     <Input
                       value={item.description}
@@ -215,7 +215,7 @@ export function InvoiceForm({ onSave, onCancel }) {
                       required
                     />
                   </div>
-                  <div className="md:col-span-2 space-y-2">
+                  <div className="sm:col-span-1 md:col-span-2 space-y-2">
                     <label className="text-sm font-medium">Quantity</label>
                     <Input
                       type="number"
@@ -226,7 +226,7 @@ export function InvoiceForm({ onSave, onCancel }) {
                       required
                     />
                   </div>
-                  <div className="md:col-span-3 space-y-2">
+                  <div className="sm:col-span-1 md:col-span-3 space-y-2">
                     <label className="text-sm font-medium">Price</label>
                     <Input
                       type="number"
@@ -237,22 +237,23 @@ export function InvoiceForm({ onSave, onCancel }) {
                       required
                     />
                   </div>
-                  <div className="md:col-span-1 space-y-2">
+                  <div className="sm:col-span-1 md:col-span-1 space-y-2">
                     <label className="text-sm font-medium">Total</label>
-                    <div className="h-9 flex items-center px-3 border rounded-md bg-muted">
+                    <div className="h-9 flex items-center px-3 border rounded-md bg-muted text-sm">
                       {format(item.quantity * item.price)}
                     </div>
                   </div>
                   {formData.items.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeItem(index)}
-                      className="md:col-span-1"
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="sm:col-span-1 md:col-span-1 flex justify-end sm:justify-start">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeItem(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -291,7 +292,7 @@ export function InvoiceForm({ onSave, onCancel }) {
                   </select>
                 </div>
                 {formData.paymentMethod === "bank" && (
-                  <div className="grid gap-4 md:grid-cols-3">
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Bank Name</label>
                       <Input
@@ -355,7 +356,7 @@ export function InvoiceForm({ onSave, onCancel }) {
           </div>
 
           {/* Tax and Notes */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Tax Rate (%)</label>
               <Input

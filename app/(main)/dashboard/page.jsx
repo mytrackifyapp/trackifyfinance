@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { getUserAccounts } from "@/actions/dashboard";
 import { getDashboardData } from "@/actions/dashboard";
+import { checkUser } from "@/lib/checkUser";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -18,10 +21,24 @@ import {
 import Image from "next/image";
 
 export default async function DashboardPage() {
-  const [accounts, transactions] = await Promise.all([
+  const { userId } = await auth();
+  
+  // Double-check onboarding status here to prevent errors if layout redirect hasn't completed
+  if (userId) {
+    const user = await checkUser();
+    if (!user || !user.onboardingCompleted) {
+      redirect("/");
+    }
+  }
+  
+  const [accountsData, transactionsData] = await Promise.all([
     getUserAccounts(),
     getDashboardData(),
   ]);
+
+  // Ensure arrays are always defined (fallback to empty arrays)
+  const accounts = Array.isArray(accountsData) ? accountsData : [];
+  const transactions = Array.isArray(transactionsData) ? transactionsData : [];
 
   // Calculate quick stats
   const totalBalance = accounts.reduce((sum, acc) => sum + (parseFloat(acc.balance) || 0), 0);
@@ -35,14 +52,14 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="flex items-center justify-between -mt-4 mb-2">
-        <p className="text-muted-foreground">
+      <div className="flex items-center justify-between mt-2 mb-2">
+        <p className="text-muted-foreground text-sm sm:text-base break-words">
           Here's an overview of your financial dashboard
         </p>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
@@ -108,7 +125,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick Actions - Feature Cards & Dictionary */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/dashboard/accounting" className="lg:col-span-1">
           <Card className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-blue-500 h-full">
             <CardHeader>

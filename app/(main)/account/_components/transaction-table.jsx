@@ -13,7 +13,7 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format as formatDate } from "date-fns";
 import { toast } from "sonner";
 
 import {
@@ -66,7 +66,7 @@ const RECURRING_INTERVALS = {
 };
 
 export function TransactionTable({ transactions }) {
-  const { format } = useCurrency();
+  const { format: formatCurrency } = useCurrency();
   const [selectedIds, setSelectedIds] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
@@ -278,7 +278,7 @@ export function TransactionTable({ transactions }) {
       </div>
 
       {/* Transactions Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -358,7 +358,7 @@ export function TransactionTable({ transactions }) {
                     />
                   </TableCell>
                   <TableCell>
-                    {format(new Date(transaction.date), "PP")}
+                    {formatDate(new Date(transaction.date), "PP")}
                   </TableCell>
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell className="capitalize">
@@ -380,7 +380,7 @@ export function TransactionTable({ transactions }) {
                     )}
                   >
                     {transaction.type === "EXPENSE" ? "-" : "+"}
-                    {format(transaction.amount)}
+                    {formatCurrency(transaction.amount)}
                   </TableCell>
                   <TableCell>
                     {transaction.isRecurring ? (
@@ -403,7 +403,7 @@ export function TransactionTable({ transactions }) {
                             <div className="text-sm">
                               <div className="font-medium">Next Date:</div>
                               <div>
-                                {format(
+                                {formatDate(
                                   new Date(transaction.nextRecurringDate),
                                   "PPP"
                                 )}
