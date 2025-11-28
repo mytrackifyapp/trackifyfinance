@@ -49,7 +49,8 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Redirect unauthenticated users to sign-in
-  if (isProtectedRoute(req) && !userId) {
+  // Only redirect if not already on the sign-in page to prevent loops
+  if (isProtectedRoute(req) && !userId && url.pathname !== "/sign-in") {
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("redirect_url", req.url);
     if (process.env.NODE_ENV === "development" && process.env.DEBUG_MIDDLEWARE === "true") {

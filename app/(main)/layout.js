@@ -32,6 +32,7 @@ const MainLayout = async ({ children }) => {
     
     // If user doesn't exist yet or onboarding not completed, redirect to onboarding
     // Don't wrap redirect in try-catch - let NEXT_REDIRECT propagate naturally
+    // Note: This redirect only happens for routes under (main), which excludes the root "/" page
     if (!user || !user.onboardingCompleted) {
       redirect("/");
     }

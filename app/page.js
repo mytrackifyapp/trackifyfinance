@@ -1,8 +1,8 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,34 +65,50 @@ const steps = [
 export default function OnboardingPage() {
   const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const hasRedirectedRef = useRef(false);
 
   // Form state
   const [name, setName] = useState("");
   const [selectedGoals, setSelectedGoals] = useState([]);
 
   useEffect(() => {
+    // Prevent multiple redirects
+    if (hasRedirectedRef.current) {
+      return;
+    }
+
     if (isLoaded) {
       if (!isSignedIn) {
-        router.push("/sign-in");
+        // Only redirect if not already on sign-in page
+        if (pathname !== "/sign-in") {
+          hasRedirectedRef.current = true;
+          router.push("/sign-in");
+        }
         return;
       }
       
       // Check if user has completed onboarding (using localStorage as fallback)
       const onboardingCompleted = localStorage.getItem("onboarding_completed");
       if (onboardingCompleted === "true") {
-        router.push("/dashboard");
+        // Only redirect if not already on dashboard
+        if (pathname !== "/dashboard") {
+          hasRedirectedRef.current = true;
+          router.push("/dashboard");
+        }
         return;
       }
       
       setCheckingStatus(false);
-      if (user?.firstName) {
+      // Use user.firstName directly instead of user object to avoid dependency issues
+      if (user?.firstName && !name) {
         setName(user.firstName);
       }
     }
-  }, [isLoaded, isSignedIn, router, user]);
+  }, [isLoaded, isSignedIn, router, pathname, user?.firstName, name]);
 
   const toggleGoal = (goalId) => {
     setSelectedGoals((prev) =>
