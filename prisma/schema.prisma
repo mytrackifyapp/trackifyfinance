@@ -9,72 +9,77 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  clerkUserId   String    @unique // clerk user id
-  email         String    @unique
-  name          String?
-  imageUrl      String?
-  onboardingCompleted Boolean @default(false)
+  id                    String                  @id @default(uuid())
+  clerkUserId           String                  @unique // clerk user id
+  email                 String                  @unique
+  name                  String?
+  imageUrl              String?
+  onboardingCompleted   Boolean                 @default(false)
   onboardingPreferences String? // JSON string of selected goals
-  transactions  Transaction[]
-  accounts      Account[]
-  budgets       Budget[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  transactions          Transaction[]
+  accounts              Account[]
+  budgets               Budget[]
+  cryptoWallets         UserCryptoWallet[]
+  cryptoTransactions    UserCryptoTransaction[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
 
   @@map("users")
 }
 
 model Account {
-  id           String        @id @default(uuid())
-  name         String
-  type         AccountType
-  balance      Decimal       @default(0) // will ask inital balance while creating an account
-  isDefault    Boolean       @default(false)
-  userId       String
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id            String        @id @default(uuid())
+  name          String
+  type          AccountType
+  context       AccountContext @default(PERSONAL) // PERSONAL or COMPANY
+  balance       Decimal       @default(0) // will ask inital balance while creating an account
+  isDefault     Boolean       @default(false)
+  companyName   String?       // Company name if context is COMPANY
+  taxId         String?       // Tax ID/EIN for company accounts
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([userId])
+  @@index([userId, context])
   @@map("accounts")
 }
 
 model Transaction {
-  id                String            @id @default(uuid())
-  type             TransactionType
-  amount           Decimal
-  description      String?
-  date             DateTime
-  category         String           
-  receiptUrl       String?
-  isRecurring      Boolean           @default(false)
+  id                String             @id @default(uuid())
+  type              TransactionType
+  amount            Decimal
+  description       String?
+  date              DateTime
+  category          String
+  receiptUrl        String?
+  isRecurring       Boolean            @default(false)
   recurringInterval RecurringInterval? // Only used if isRecurring is true
-  nextRecurringDate DateTime?         // Next date for recurring transaction
-  lastProcessed    DateTime?         // Last time this recurring transaction was processed
-  status           TransactionStatus  @default(COMPLETED)
-  userId           String
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId        String
-  account          Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  nextRecurringDate DateTime? // Next date for recurring transaction
+  lastProcessed     DateTime? // Last time this recurring transaction was processed
+  status            TransactionStatus  @default(COMPLETED)
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId         String
+  account           Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   @@index([userId])
   @@index([accountId])
   @@map("transactions")
 }
 
-
 model Budget {
-  id          String       @id @default(uuid())
-  amount      Decimal
-  lastAlertSent DateTime?  // Track when the last alert was sent
-  userId      String       @unique
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String    @id @default(uuid())
+  amount        Decimal
+  lastAlertSent DateTime? // Track when the last alert was sent
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([userId])
   @@map("budgets")
@@ -90,6 +95,11 @@ enum AccountType {
   SAVINGS
 }
 
+enum AccountContext {
+  PERSONAL
+  COMPANY
+}
+
 enum TransactionStatus {
   PENDING
   COMPLETED
@@ -101,4 +111,107 @@ enum RecurringInterval {
   WEEKLY
   MONTHLY
   YEARLY
+}
+
+// ==================== CRYPTO MODELS ====================
+
+model UserCryptoWallet {
+  id            String                  @id @default(uuid())
+  userId        String
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String // User-friendly name (e.g., "My Binance", "Hardware Wallet")
+  type          CryptoWalletType
+  chain         String? // Blockchain network (ethereum, bitcoin, solana, etc.)
+  address       String? // Blockchain address for manual/blockchain wallets
+  exchangeName  String? // Exchange name (binance, coinbase, etc.)
+  apiKey        String? // Encrypted API key for exchanges
+  apiSecret     String? // Encrypted API secret for exchanges
+  apiPassphrase String? // Encrypted API passphrase (for some exchanges)
+  isActive      Boolean                 @default(true)
+  lastSyncedAt  DateTime? // Last successful sync timestamp
+  syncError     String? // Last sync error message
+  assets        UserCryptoAsset[]
+  transactions  UserCryptoTransaction[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  @@index([userId])
+  @@index([userId, type])
+  @@map("user_crypto_wallets")
+}
+
+model UserCryptoAsset {
+  id              String           @id @default(uuid())
+  userId          String
+  walletId        String
+  wallet          UserCryptoWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  tokenSymbol     String // e.g., BTC, ETH, USDT
+  tokenName       String // e.g., Bitcoin, Ethereum, Tether
+  tokenAddress    String? // Contract address for tokens (ERC-20, etc.)
+  amount          Decimal          @default(0)
+  averageCost     Decimal          @default(0) // Average cost basis per token
+  lastPrice       Decimal? // Last known price
+  lastPriceUpdate DateTime? // When last price was updated
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([walletId, tokenSymbol, tokenAddress])
+  @@index([userId])
+  @@index([walletId])
+  @@index([tokenSymbol])
+  @@map("user_crypto_assets")
+}
+
+model UserCryptoTransaction {
+  id           String                @id @default(uuid())
+  userId       String
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId     String
+  wallet       UserCryptoWallet      @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  tokenSymbol  String
+  tokenName    String
+  type         CryptoTransactionType
+  amount       Decimal
+  price        Decimal? // Price per token at time of transaction
+  totalValue   Decimal // amount * price (or total value for swaps)
+  fee          Decimal? // Transaction fee
+  feeToken     String? // Token used for fee (e.g., ETH, BNB)
+  fromToken    String? // For swaps: token being swapped from
+  toToken      String? // For swaps: token being swapped to
+  fromAmount   Decimal? // For swaps: amount of fromToken
+  toAmount     Decimal? // For swaps: amount of toToken
+  timestamp    DateTime // When transaction occurred
+  txHash       String? // Blockchain transaction hash
+  exchangeTxId String? // Exchange transaction ID
+  metadata     String? // JSON string for additional data
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([userId])
+  @@index([walletId])
+  @@index([tokenSymbol])
+  @@index([timestamp])
+  @@index([userId, timestamp])
+  @@map("user_crypto_transactions")
+}
+
+enum CryptoWalletType {
+  MANUAL // User manually enters balances
+  BLOCKCHAIN // Auto-sync from blockchain address
+  EXCHANGE_BINANCE
+  EXCHANGE_COINBASE
+  EXCHANGE_OTHER
+}
+
+enum CryptoTransactionType {
+  BUY
+  SELL
+  SWAP
+  TRANSFER_IN
+  TRANSFER_OUT
+  STAKE_REWARD
+  UNSTAKE
+  FEE
+  AIRDROP
+  OTHER
 }

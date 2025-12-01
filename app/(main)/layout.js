@@ -19,7 +19,7 @@ import {
   SidebarTrigger,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Calculator, MessageSquare, FileText, Settings, LayoutDashboard, Store, Sparkles } from "lucide-react";
+import { Calculator, MessageSquare, FileText, Settings, LayoutDashboard, Store, Sparkles, Coins } from "lucide-react";
 import { checkUser } from "@/lib/checkUser";
 
 const MainLayout = async ({ children }) => {
@@ -70,6 +70,14 @@ const MainLayout = async ({ children }) => {
                     <Link href="/dashboard/chat">
                       <Sparkles />
                       <span>Finna</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/crypto">
+                      <Coins />
+                      <span>Crypto</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

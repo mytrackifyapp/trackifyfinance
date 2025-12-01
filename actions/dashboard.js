@@ -97,10 +97,14 @@ export async function createAccount(data) {
 
     const account = await db.account.create({
       data: {
-        ...data,
+        name: data.name,
+        type: data.type,
+        context: data.context || "PERSONAL",
         balance: balanceFloat,
-        userId: user.id,
         isDefault: shouldBeDefault,
+        companyName: data.companyName || null,
+        taxId: data.taxId || null,
+        userId: user.id,
       },
     });
 

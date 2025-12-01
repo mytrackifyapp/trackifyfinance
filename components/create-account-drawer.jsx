@@ -42,10 +42,15 @@ export function CreateAccountDrawer({ children }) {
     defaultValues: {
       name: "",
       type: "CURRENT",
+      context: "PERSONAL",
       balance: "",
       isDefault: false,
+      companyName: "",
+      taxId: "",
     },
   });
+
+  const accountContext = watch("context");
 
   const {
     loading: createAccountLoading,
@@ -97,6 +102,75 @@ export function CreateAccountDrawer({ children }) {
                 <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="context"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Account Context
+              </label>
+              <Select
+                onValueChange={(value) => {
+                  setValue("context", value);
+                  // Reset company fields if switching to personal
+                  if (value === "PERSONAL") {
+                    setValue("companyName", "");
+                    setValue("taxId", "");
+                  }
+                }}
+                defaultValue={watch("context")}
+              >
+                <SelectTrigger id="context">
+                  <SelectValue placeholder="Select context" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PERSONAL">Personal</SelectItem>
+                  <SelectItem value="COMPANY">Company/Business</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.context && (
+                <p className="text-sm text-red-500">{errors.context.message}</p>
+              )}
+            </div>
+
+            {accountContext === "COMPANY" && (
+              <>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="companyName"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Company Name
+                  </label>
+                  <Input
+                    id="companyName"
+                    placeholder="e.g., Acme Corp"
+                    {...register("companyName")}
+                  />
+                  {errors.companyName && (
+                    <p className="text-sm text-red-500">{errors.companyName.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="taxId"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Tax ID / EIN (Optional)
+                  </label>
+                  <Input
+                    id="taxId"
+                    placeholder="e.g., 12-3456789"
+                    {...register("taxId")}
+                  />
+                  {errors.taxId && (
+                    <p className="text-sm text-red-500">{errors.taxId.message}</p>
+                  )}
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <label

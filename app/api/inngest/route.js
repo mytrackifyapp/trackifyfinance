@@ -6,6 +6,7 @@ import {
   generateMonthlyReports,
   processRecurringTransaction,
   triggerRecurringTransactions,
+  syncCryptoPortfolios,
 } from "@/lib/inngest/function";
 
 import arcjet, { shield, detectBot } from "@arcjet/next";
@@ -42,6 +43,7 @@ export const GET = withArcjet(
       triggerRecurringTransactions,
       generateMonthlyReports,
       checkBudgetAlerts,
+      syncCryptoPortfolios,
     ],
   }).GET
 );

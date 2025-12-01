@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, Loader2 } from "lucide-react";
@@ -31,10 +31,13 @@ import { createTransaction, updateTransaction } from "@/actions/transaction";
 import { transactionSchema } from "@/app/lib/schema";
 import { ReceiptScanner } from "./recipt-scanner";
 import { useCurrency } from "@/components/currency-provider";
+import { defaultCategories } from "@/data/categories";
+import { companyCategories } from "@/data/company-categories";
+import { Badge } from "@/components/ui/badge";
 
 export function AddTransactionForm({
   accounts,
-  categories,
+  categories: initialCategories,
   editMode = false,
   initialData = null,
 }) {
@@ -125,15 +128,84 @@ export function AddTransactionForm({
   const type = watch("type");
   const isRecurring = watch("isRecurring");
   const date = watch("date");
+  const selectedAccountId = watch("accountId");
+  
+  // Get the selected account to determine context
+  const selectedAccount = accounts.find((acc) => acc.id === selectedAccountId);
+  
+  // Initialize context: in edit mode, use the account's context; otherwise use default account's context
+  const getInitialContext = () => {
+    if (editMode && initialData) {
+      const account = accounts.find((acc) => acc.id === initialData.accountId);
+      return account?.context || "PERSONAL";
+    }
+    const defaultAccount = accounts.find((ac) => ac.isDefault);
+    return defaultAccount?.context || "PERSONAL";
+  };
+  
+  const [accountContext, setAccountContext] = useState(getInitialContext());
+  
+  // Update context when account changes in edit mode
+  useEffect(() => {
+    if (editMode && selectedAccount?.context) {
+      setAccountContext(selectedAccount.context);
+    }
+  }, [selectedAccount, editMode]);
+
+  // Filter accounts based on selected context
+  const filteredAccounts = accounts.filter(
+    (acc) => acc.context === accountContext || (!acc.context && accountContext === "PERSONAL")
+  );
+
+  // Dynamically get categories based on selected context
+  const categories = accountContext === "COMPANY" ? companyCategories : defaultCategories;
 
   const filteredCategories = categories.filter(
     (category) => category.type === type
   );
 
+  // Reset account selection when context changes
+  useEffect(() => {
+    if (filteredAccounts.length > 0 && !filteredAccounts.find((acc) => acc.id === selectedAccountId)) {
+      const defaultAccount = filteredAccounts.find((acc) => acc.isDefault) || filteredAccounts[0];
+      if (defaultAccount) {
+        setValue("accountId", defaultAccount.id);
+      }
+    }
+  }, [accountContext, filteredAccounts, selectedAccountId, setValue]);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Receipt Scanner - Only show in create mode */}
       {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+
+      {/* Account Context - Only show in create mode */}
+      {!editMode && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Account Type</label>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={accountContext === "PERSONAL" ? "default" : "outline"}
+              onClick={() => setAccountContext("PERSONAL")}
+              className="flex-1"
+            >
+              Personal
+            </Button>
+            <Button
+              type="button"
+              variant={accountContext === "COMPANY" ? "default" : "outline"}
+              onClick={() => setAccountContext("COMPANY")}
+              className="flex-1"
+            >
+              Business
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Select whether this transaction is for a personal or business account
+          </p>
+        </div>
+      )}
 
       {/* Type */}
       <div className="space-y-2">
@@ -175,28 +247,51 @@ export function AddTransactionForm({
           <Select
             onValueChange={(value) => setValue("accountId", value)}
             defaultValue={getValues("accountId")}
+            value={selectedAccountId}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.name} ({formatCurrency(parseFloat(account.balance))})
-                </SelectItem>
-              ))}
+              {filteredAccounts.length > 0 ? (
+                filteredAccounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{account.name}</span>
+                      {account.context === "COMPANY" && (
+                        <Badge variant="secondary" className="text-xs">
+                          Business
+                        </Badge>
+                      )}
+                      <span className="text-muted-foreground">
+                        ({formatCurrency(parseFloat(account.balance))})
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                  No {accountContext === "COMPANY" ? "business" : "personal"} accounts found
+                </div>
+              )}
               <CreateAccountDrawer>
                 <Button
+                  type="button"
                   variant="ghost"
                   className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
                 >
-                  Create Account
+                  Create {accountContext === "COMPANY" ? "Business" : "Personal"} Account
                 </Button>
               </CreateAccountDrawer>
             </SelectContent>
           </Select>
           {errors.accountId && (
             <p className="text-sm text-red-500">{errors.accountId.message}</p>
+          )}
+          {filteredAccounts.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              You need to create a {accountContext === "COMPANY" ? "business" : "personal"} account first
+            </p>
           )}
         </div>
       </div>

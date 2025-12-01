@@ -1,7 +1,13 @@
 import { getUserAccounts } from "@/actions/dashboard";
 import { defaultCategories } from "@/data/categories";
+import { companyCategories } from "@/data/company-categories";
 import { AddTransactionForm } from "../_components/transaction-form";
 import { getTransaction } from "@/actions/transaction";
+
+// Helper to get categories based on account context
+function getCategoriesForContext(context) {
+  return context === "COMPANY" ? companyCategories : defaultCategories;
+}
 
 export default async function AddTransactionPage({ searchParams }) {
   const accountsData = await getUserAccounts();
@@ -14,6 +20,15 @@ export default async function AddTransactionPage({ searchParams }) {
     initialData = transaction;
   }
 
+  // Determine context from initial data or default account
+  const defaultAccount = accounts.find((ac) => ac.isDefault);
+  const context = initialData
+    ? accounts.find((ac) => ac.id === initialData.accountId)?.context || "PERSONAL"
+    : defaultAccount?.context || "PERSONAL";
+
+  // Get appropriate categories
+  const categories = getCategoriesForContext(context);
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-5">
       <div className="flex justify-center md:justify-normal mb-8">
@@ -22,7 +37,7 @@ export default async function AddTransactionPage({ searchParams }) {
       </div>
       <AddTransactionForm
         accounts={accounts}
-        categories={defaultCategories}
+        categories={categories}
         editMode={!!editId}
         initialData={initialData}
       />

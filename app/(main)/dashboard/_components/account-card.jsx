@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { useCurrency } from "@/components/currency-provider";
 
 export function AccountCard({ account }) {
-  const { name, type, balance, id, isDefault } = account;
+  const { name, type, balance, id, isDefault, context, companyName } = account;
   const { format } = useCurrency();
 
   const {
@@ -55,9 +55,16 @@ export function AccountCard({ account }) {
     <Card className="hover:shadow-md transition-shadow group relative">
       <Link href={`/account/${id}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium capitalize">
-            {name}
-          </CardTitle>
+          <div className="flex-1">
+            <CardTitle className="text-sm font-medium capitalize">
+              {name}
+            </CardTitle>
+            {context === "COMPANY" && (
+              <Badge variant="secondary" className="mt-1 text-xs">
+                Business
+              </Badge>
+            )}
+          </div>
           <Switch
             checked={isDefault}
             onClick={handleDefaultChange}
@@ -70,6 +77,7 @@ export function AccountCard({ account }) {
           </div>
           <p className="text-xs text-muted-foreground">
             {type.charAt(0) + type.slice(1).toLowerCase()} Account
+            {companyName && ` • ${companyName}`}
           </p>
         </CardContent>
         <CardFooter className="flex justify-between text-sm text-muted-foreground">

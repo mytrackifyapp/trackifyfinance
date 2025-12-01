@@ -3,8 +3,11 @@ import { z } from "zod";
 export const accountSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.enum(["CURRENT", "SAVINGS"]),
+  context: z.enum(["PERSONAL", "COMPANY"]).default("PERSONAL"),
   balance: z.string().min(1, "Initial balance is required"),
   isDefault: z.boolean().default(false),
+  companyName: z.string().optional(),
+  taxId: z.string().optional(),
 });
 
 export const transactionSchema = z
