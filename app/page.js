@@ -145,19 +145,23 @@ export default function OnboardingPage() {
       // Complete onboarding
       setLoading(true);
       try {
-        await completeOnboarding({
+        const result = await completeOnboarding({
           name: name.trim(),
           preferences: selectedGoals,
         });
         
-        toast.success("Welcome to Trackify! 🎉");
-        // Use replace to avoid back button issues
-        router.replace("/dashboard");
+        if (result.success) {
+          toast.success("Welcome to Trackify! 🎉");
+          // Use replace to avoid back button issues
+          router.replace("/dashboard");
+        } else {
+          toast.error(result.error || "Something went wrong. Please try again.");
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Error completing onboarding:", error);
         toast.error("Something went wrong. Please try again.");
         setLoading(false);
-        // Don't redirect on error - let user try again
       }
     }
   };
@@ -408,18 +412,27 @@ export default function OnboardingPage() {
             <button
               onClick={async () => {
                 try {
+                  setLoading(true);
                   // Complete onboarding with minimal data
-                  await completeOnboarding({
+                  const result = await completeOnboarding({
                     name: user?.firstName || user?.fullName || "User",
                     preferences: [],
                   });
-                  router.replace("/dashboard");
+                  
+                  if (result.success) {
+                    router.replace("/dashboard");
+                  } else {
+                    toast.error(result.error || "Could not skip onboarding. Please complete the form.");
+                    setLoading(false);
+                  }
                 } catch (error) {
                   console.error("Error skipping onboarding:", error);
                   toast.error("Could not skip onboarding. Please complete the form.");
+                  setLoading(false);
                 }
               }}
               className="hover:text-gray-900 transition-colors underline"
+              disabled={loading}
             >
               Skip onboarding for now
             </button>
