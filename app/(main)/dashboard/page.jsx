@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import { getUserAccounts } from "@/actions/dashboard";
 import { getDashboardData } from "@/actions/dashboard";
-import { checkUser } from "@/lib/checkUser";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -21,15 +18,8 @@ import {
 import Image from "next/image";
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
-  
-  // Double-check onboarding status here to prevent errors if layout redirect hasn't completed
-  if (userId) {
-    const user = await checkUser();
-    if (!user || !user.onboardingCompleted) {
-      redirect("/");
-    }
-  }
+  // Note: Onboarding check is handled in app/(main)/layout.js
+  // No need to duplicate the check here to avoid redirect loops
   
   const [accountsData, transactionsData] = await Promise.all([
     getUserAccounts(),

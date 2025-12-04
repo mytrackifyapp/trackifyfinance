@@ -13,6 +13,23 @@ export async function getCurrentUser() {
   return user;
 }
 
+export async function checkOnboardingStatus() {
+  const { userId } = await auth();
+  if (!userId) {
+    return { onboardingCompleted: false };
+  }
+  
+  try {
+    const user = await checkUser();
+    return { 
+      onboardingCompleted: user?.onboardingCompleted || false 
+    };
+  } catch (error) {
+    console.error("Error checking onboarding status:", error);
+    return { onboardingCompleted: false };
+  }
+}
+
 export async function updateProfile({ name, imageUrl }) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -58,11 +75,5 @@ export async function completeOnboarding({ name, preferences }) {
   revalidatePath("/");
   revalidatePath("/dashboard");
   return { success: true, data: updated };
-}
-
-export async function checkOnboardingStatus() {
-  const user = await checkUser();
-  if (!user) return { completed: false };
-  return { completed: user.onboardingCompleted || false };
 }
 

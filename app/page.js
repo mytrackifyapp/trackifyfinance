@@ -19,7 +19,7 @@ import {
   ArrowLeft,
   User
 } from "lucide-react";
-import { completeOnboarding } from "@/actions/user";
+import { completeOnboarding, checkOnboardingStatus } from "@/actions/user";
 import { toast } from "sonner";
 
 // Goals with icons and descriptions
@@ -81,33 +81,48 @@ export default function OnboardingPage() {
       return;
     }
 
-    if (isLoaded) {
-      if (!isSignedIn) {
-        // Only redirect if not already on sign-in page
-        if (pathname !== "/sign-in") {
-          hasRedirectedRef.current = true;
-          router.push("/sign-in");
-        }
-        return;
-      }
-      
-      // Check if user has completed onboarding (using localStorage as fallback)
-      const onboardingCompleted = localStorage.getItem("onboarding_completed");
-      if (onboardingCompleted === "true") {
-        // Only redirect if not already on dashboard
-        if (pathname !== "/dashboard") {
-          hasRedirectedRef.current = true;
-          router.push("/dashboard");
-        }
-        return;
-      }
-      
-      setCheckingStatus(false);
-      // Use user.firstName directly instead of user object to avoid dependency issues
-      if (user?.firstName && !name) {
-        setName(user.firstName);
-      }
+    if (!isLoaded) {
+      return;
     }
+
+    // If not signed in, redirect to sign-in (only once)
+    if (!isSignedIn) {
+      if (pathname !== "/sign-in" && pathname !== "/sign-up") {
+        hasRedirectedRef.current = true;
+        router.replace("/sign-in");
+      }
+      return;
+    }
+
+    // If signed in, check onboarding status from server (not localStorage)
+    const verifyOnboarding = async () => {
+      try {
+        const status = await checkOnboardingStatus();
+        if (status.onboardingCompleted) {
+          // User has completed onboarding, redirect to dashboard
+          if (pathname !== "/dashboard") {
+            hasRedirectedRef.current = true;
+            router.replace("/dashboard");
+          }
+          return;
+        }
+        
+        // Onboarding not completed, show the form
+        setCheckingStatus(false);
+        if (user?.firstName && !name) {
+          setName(user.firstName);
+        }
+      } catch (error) {
+        console.error("Error verifying onboarding:", error);
+        // On error, show onboarding form (safer than redirecting)
+        setCheckingStatus(false);
+        if (user?.firstName && !name) {
+          setName(user.firstName);
+        }
+      }
+    };
+
+    verifyOnboarding();
   }, [isLoaded, isSignedIn, router, pathname, user?.firstName, name]);
 
   const toggleGoal = (goalId) => {
@@ -135,23 +150,14 @@ export default function OnboardingPage() {
           preferences: selectedGoals,
         });
         
-        // Save to localStorage as backup
-        localStorage.setItem("onboarding_completed", "true");
-        localStorage.setItem("user_name", name.trim());
-        if (selectedGoals.length > 0) {
-          localStorage.setItem("user_preferences", JSON.stringify(selectedGoals));
-        }
-        
         toast.success("Welcome to Trackify! 🎉");
-        router.push("/dashboard");
+        // Use replace to avoid back button issues
+        router.replace("/dashboard");
       } catch (error) {
         console.error("Error completing onboarding:", error);
         toast.error("Something went wrong. Please try again.");
-        // Still redirect even if save fails
-        localStorage.setItem("onboarding_completed", "true");
-        router.push("/dashboard");
-      } finally {
         setLoading(false);
+        // Don't redirect on error - let user try again
       }
     }
   };
@@ -400,9 +406,18 @@ export default function OnboardingPage() {
         {step === 1 && (
           <p className="text-center text-sm text-muted-foreground">
             <button
-              onClick={() => {
-                localStorage.setItem("onboarding_completed", "true");
-                router.push("/dashboard");
+              onClick={async () => {
+                try {
+                  // Complete onboarding with minimal data
+                  await completeOnboarding({
+                    name: user?.firstName || user?.fullName || "User",
+                    preferences: [],
+                  });
+                  router.replace("/dashboard");
+                } catch (error) {
+                  console.error("Error skipping onboarding:", error);
+                  toast.error("Could not skip onboarding. Please complete the form.");
+                }
               }}
               className="hover:text-gray-900 transition-colors underline"
             >
