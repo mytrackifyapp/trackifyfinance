@@ -44,7 +44,7 @@ export default async function DashboardPage() {
       {/* Welcome Section */}
       <div className="flex items-center justify-between mt-2 mb-2">
         <p className="text-muted-foreground text-sm sm:text-base break-words">
-          Here's an overview of your financial dashboard
+          Here&apos;s an overview of your financial dashboard
         </p>
       </div>
 

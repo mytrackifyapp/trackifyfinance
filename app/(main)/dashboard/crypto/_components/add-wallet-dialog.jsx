@@ -189,7 +189,7 @@ export function AddWalletDialog({ open, onOpenChange }) {
                   <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
                     <li>Log in to your Binance account</li>
                     <li>Go to API Management in your account settings</li>
-                    <li>Create a new API key with "Read" permissions only</li>
+                    <li>Create a new API key with &quot;Read&quot; permissions only</li>
                     <li>Copy your API Key and Secret Key</li>
                     <li>Paste them here (they will be encrypted)</li>
                   </ol>
@@ -197,7 +197,7 @@ export function AddWalletDialog({ open, onOpenChange }) {
                   <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
                     <li>Log in to your Coinbase account</li>
                     <li>Go to API settings</li>
-                    <li>Create a new API key with "View" permissions only</li>
+                    <li>Create a new API key with &quot;View&quot; permissions only</li>
                     <li>Copy your API Key, Secret, and Passphrase</li>
                     <li>Paste them here (they will be encrypted)</li>
                   </ol>

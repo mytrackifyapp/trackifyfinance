@@ -202,7 +202,7 @@ export function WalletConnectDialog({ open, onOpenChange }) {
                   className="mt-1"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Give this wallet a name to identify it (e.g., "MetaMask Main", "Coinbase Wallet")
+                  Give this wallet a name to identify it (e.g., &quot;MetaMask Main&quot;, &quot;Coinbase Wallet&quot;)
                 </p>
               </div>
 

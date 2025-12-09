@@ -68,7 +68,7 @@ export default function ProductPage() {
           <CardContent className="pt-6 text-center">
             <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
             <p className="text-muted-foreground">
-              The product you're looking for doesn't exist or has been removed.
+              The product you&apos;re looking for doesn&apos;t exist or has been removed.
             </p>
           </CardContent>
         </Card>

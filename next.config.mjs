@@ -34,16 +34,21 @@ const nextConfig = {
       bodySizeLimit: "5mb",
     },
   },
-  eslint: {
-    // Ignore ESLint warnings during build to allow Vercel deployment
-    // Warnings will still be shown but won't fail the build
-    ignoreDuringBuilds: true,
-  },
+  
   typescript: {
     // Allow TypeScript errors during build for Vercel deployment
     // This will allow the build to pass with type errors
     ignoreBuildErrors: true,
   },
+
+  // Exclude problematic packages from server-side bundling
+  // These packages will be treated as external and not bundled
+  serverExternalPackages: [
+    'pino',
+    'thread-stream',
+    '@walletconnect/sign-client',
+    'prettier',
+  ],
 };
 
 export default nextConfig;

@@ -269,7 +269,7 @@ export default function OnboardingPage() {
                     autoFocus
                   />
                   <p className="text-xs text-muted-foreground text-center mt-2">
-                    We'll personalize your experience with this name
+                    We&apos;ll personalize your experience with this name
                   </p>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function OnboardingPage() {
                     Welcome, <span className="text-gray-900">{name || user?.firstName}</span>! 🎊
                   </p>
                   <p className="text-gray-600">
-                    You're ready to start managing your finances
+                    You&apos;re ready to start managing your finances
                   </p>
                 </div>
                 {selectedGoals.length > 0 && (
