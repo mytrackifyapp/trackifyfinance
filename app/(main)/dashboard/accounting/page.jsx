@@ -4,6 +4,7 @@ import { getUserAccounts } from "@/actions/dashboard";
 import { getDashboardData } from "@/actions/dashboard";
 import { checkUser } from "@/lib/checkUser";
 import { AccountingTabs } from "./_components/accounting-tabs";
+import { MonoCallbackHandler } from "./_components/mono-callback-handler";
 
 export default async function AccountingPage() {
   const { userId } = await auth();
@@ -27,6 +28,9 @@ export default async function AccountingPage() {
 
   return (
     <div className="space-y-8">
+      {/* Mono Callback Handler */}
+      <MonoCallbackHandler />
+      
       {/* Subtitle */}
       <p className="text-muted-foreground text-sm sm:text-base mt-2 mb-2 break-words">
         Manage your personal and business accounts, transactions, and budgets

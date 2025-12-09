@@ -36,6 +36,18 @@ model Account {
   isDefault     Boolean       @default(false)
   companyName   String?       // Company name if context is COMPANY
   taxId         String?       // Tax ID/EIN for company accounts
+  // Bank connection fields (supports Plaid, Mono, and other providers)
+  isBankConnected Boolean     @default(false) // Whether account is connected via bank API
+  bankProvider     String?     // Provider name: 'PLAID', 'MONO', etc.
+  plaidItemId     String?     @unique // Plaid Item ID (unique per bank connection)
+  plaidAccessToken String?    // Encrypted Plaid access token
+  plaidAccountId  String?    // Plaid Account ID (specific account within item)
+  plaidInstitutionId String?  // Plaid Institution ID (bank identifier)
+  plaidInstitutionName String? // Bank name from provider
+  providerAccountId String?   // Provider-specific account ID (for Mono, etc.)
+  providerItemId   String?    // Provider-specific item/connection ID
+  lastSyncedAt     DateTime?  // Last successful sync with bank provider
+  syncError        String?    // Last sync error message
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions  Transaction[]
@@ -44,6 +56,7 @@ model Account {
 
   @@index([userId])
   @@index([userId, context])
+  @@index([plaidItemId])
   @@map("accounts")
 }
 

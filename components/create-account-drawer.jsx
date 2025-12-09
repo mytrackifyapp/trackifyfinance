@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Building2, Plus } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
 
@@ -25,11 +25,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { createAccount } from "@/actions/dashboard";
 import { accountSchema } from "@/app/lib/schema";
+import { BankConnectionDialog } from "@/components/bank-connection-dialog";
 
-export function CreateAccountDrawer({ children }) {
+export function CreateAccountDrawer({ children, defaultContext = "PERSONAL" }) {
   const [open, setOpen] = useState(false);
+  const [showBankConnection, setShowBankConnection] = useState(false);
+  const [connectionContext, setConnectionContext] = useState(defaultContext);
   const {
     register,
     handleSubmit,
@@ -42,7 +46,7 @@ export function CreateAccountDrawer({ children }) {
     defaultValues: {
       name: "",
       type: "CURRENT",
-      context: "PERSONAL",
+      context: defaultContext,
       balance: "",
       isDefault: false,
       companyName: "",
@@ -77,15 +81,46 @@ export function CreateAccountDrawer({ children }) {
     }
   }, [error]);
 
+  const handleConnectBank = () => {
+    setConnectionContext(accountContext);
+    setShowBankConnection(true);
+    setOpen(false); // Close the drawer
+  };
+
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Create New Account</DrawerTitle>
-        </DrawerHeader>
-        <div className="px-4 pb-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>{children}</DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Add Account</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4">
+            {/* Connect Bank Option */}
+            <div className="mb-6">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-auto py-6 flex flex-col items-center gap-2 border-2 border-dashed hover:border-primary"
+                onClick={handleConnectBank}
+              >
+                <Building2 className="h-6 w-6 text-primary" />
+                <div className="text-center">
+                  <p className="font-medium">Connect Bank Account</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Automatically sync transactions and balances
+                  </p>
+                </div>
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-4 my-4">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground">OR</span>
+              <Separator className="flex-1" />
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <label
                 htmlFor="name"
@@ -255,9 +290,17 @@ export function CreateAccountDrawer({ children }) {
                 )}
               </Button>
             </div>
-          </form>
-        </div>
-      </DrawerContent>
-    </Drawer>
+            </form>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <BankConnectionDialog
+        open={showBankConnection}
+        onOpenChange={setShowBankConnection}
+        context={connectionContext}
+        userCountry={null} // You can pass user's country from user profile/settings
+      />
+    </>
   );
 }
