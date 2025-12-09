@@ -51,11 +51,52 @@ export async function POST(request) {
     // Encrypt access token for storage
     const encryptedToken = encryptPlaidToken(accessToken);
 
-    // Create accounts for each connected bank account
+    // Check if this Plaid item already exists for this user
+    // Note: plaidItemId is unique in schema, but one Plaid item can have multiple accounts
+    // So we need to handle this carefully
+    const existingItemAccount = await db.account.findFirst({
+      where: {
+        userId: user.id,
+        plaidItemId: itemId,
+      },
+    });
+
+    // Get all existing accounts from this item (they might not all have plaidItemId set due to unique constraint)
+    // So we'll also check by institution and account IDs
+    const existingAccountsFromItem = existingItemAccount
+      ? await db.account.findMany({
+          where: {
+            userId: user.id,
+            OR: [
+              { plaidItemId: itemId },
+              { plaidInstitutionId: institution_id },
+            ],
+          },
+        })
+      : [];
+
+    // Check if this should be default (first account for this user)
+    const allUserAccounts = await db.account.findMany({
+      where: { userId: user.id },
+    });
+    const shouldBeDefault = allUserAccounts.length === 0;
+
+    if (shouldBeDefault) {
+      await db.account.updateMany({
+        where: { userId: user.id, isDefault: true },
+        data: { isDefault: false },
+      });
+    }
+
+    // Create/update accounts for each connected bank account
     const createdAccounts = [];
+    const processedAccountIds = new Set();
     
-    for (const account of accounts) {
-      // Skip if account already exists
+    for (let i = 0; i < accounts.length; i++) {
+      const account = accounts[i];
+      processedAccountIds.add(account.account_id);
+      
+      // Check if account already exists by plaidAccountId
       const existingAccount = await db.account.findFirst({
         where: {
           userId: user.id,
@@ -65,19 +106,27 @@ export async function POST(request) {
 
       if (existingAccount) {
         // Update existing account
+        // Only set plaidItemId on the first account to avoid unique constraint violation
+        const updateData = {
+          plaidAccessToken: encryptedToken,
+          plaidAccountId: account.account_id,
+          plaidInstitutionId: institution_id,
+          plaidInstitutionName: institution_name,
+          isBankConnected: true,
+          balance: account.balances.current || 0,
+          lastSyncedAt: new Date(),
+          syncError: null,
+          bankProvider: 'PLAID',
+        };
+        
+        // Only set plaidItemId on the first account (i === 0)
+        if (i === 0) {
+          updateData.plaidItemId = itemId;
+        }
+        
         const updated = await db.account.update({
           where: { id: existingAccount.id },
-          data: {
-            plaidItemId: itemId,
-            plaidAccessToken: encryptedToken,
-            plaidAccountId: account.account_id,
-            plaidInstitutionId: institution_id,
-            plaidInstitutionName: institution_name,
-            isBankConnected: true,
-            balance: account.balances.current || 0,
-            lastSyncedAt: new Date(),
-            syncError: null,
-          },
+          data: updateData,
         });
         createdAccounts.push(updated);
       } else {
@@ -86,37 +135,51 @@ export async function POST(request) {
           ? (account.subtype === 'savings' ? 'SAVINGS' : 'CURRENT')
           : 'CURRENT';
 
-        // Check if this should be default (first account)
-        const existingAccounts = await db.account.findMany({
-          where: { userId: user.id },
-        });
-        const shouldBeDefault = existingAccounts.length === 0;
+        // Only the first account from this connection should be default (if user has no accounts)
+        const isDefault = shouldBeDefault && i === 0;
 
-        if (shouldBeDefault) {
-          await db.account.updateMany({
-            where: { userId: user.id, isDefault: true },
-            data: { isDefault: false },
-          });
+        // Only set plaidItemId on the first account to avoid unique constraint violation
+        const accountData = {
+          name: account.name || `${institution_name} ${account.type}`,
+          type: accountType,
+          context: context || 'PERSONAL',
+          balance: account.balances.current || 0,
+          isDefault: isDefault,
+          isBankConnected: true,
+          bankProvider: 'PLAID',
+          plaidAccessToken: encryptedToken,
+          plaidAccountId: account.account_id,
+          plaidInstitutionId: institution_id,
+          plaidInstitutionName: institution_name,
+          lastSyncedAt: new Date(),
+          userId: user.id,
+        };
+        
+        // Only set plaidItemId on the first account (i === 0)
+        if (i === 0) {
+          accountData.plaidItemId = itemId;
         }
 
         const newAccount = await db.account.create({
-          data: {
-            name: account.name || `${institution_name} ${account.type}`,
-            type: accountType,
-            context: context || 'PERSONAL',
-            balance: account.balances.current || 0,
-            isDefault: shouldBeDefault,
-            isBankConnected: true,
-            plaidItemId: itemId,
-            plaidAccessToken: encryptedToken,
-            plaidAccountId: account.account_id,
-            plaidInstitutionId: institution_id,
-            plaidInstitutionName: institution_name,
-            lastSyncedAt: new Date(),
-            userId: user.id,
-          },
+          data: accountData,
         });
         createdAccounts.push(newAccount);
+      }
+    }
+
+    // Delete any accounts from this item that are no longer in Plaid's response
+    // (but keep accounts that don't have plaidItemId set to avoid deleting unrelated accounts)
+    if (existingItemAccount || existingAccountsFromItem.length > 0) {
+      const accountsToDelete = existingAccountsFromItem.filter(
+        acc => acc.plaidAccountId && !processedAccountIds.has(acc.plaidAccountId)
+      );
+      
+      if (accountsToDelete.length > 0) {
+        await db.account.deleteMany({
+          where: {
+            id: { in: accountsToDelete.map(acc => acc.id) },
+          },
+        });
       }
     }
 

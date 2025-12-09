@@ -27,6 +27,7 @@ export function BankConnectionDialog({ open, onOpenChange, context = "PERSONAL",
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [availableProviders, setAvailableProviders] = useState([]);
+  const [isPlaidLinkOpen, setIsPlaidLinkOpen] = useState(false);
 
   // Get available providers based on country
   useEffect(() => {
@@ -40,15 +41,16 @@ export function BankConnectionDialog({ open, onOpenChange, context = "PERSONAL",
     }
   }, [userCountry, open]);
 
-  // Reset when dialog closes
+  // Reset when dialog closes (but not if Plaid Link is open)
   useEffect(() => {
-    if (!open) {
+    if (!open && !isPlaidLinkOpen) {
       setSelectedProvider(null);
       setLinkToken(null);
       setError(null);
       setLoading(false);
+      setIsPlaidLinkOpen(false);
     }
-  }, [open]);
+  }, [open, isPlaidLinkOpen]);
 
   const fetchLinkToken = async (provider) => {
     try {
@@ -139,6 +141,8 @@ export function BankConnectionDialog({ open, onOpenChange, context = "PERSONAL",
         console.error("Error exchanging token:", err);
         setError(err.message);
         toast.error(err.message || "Failed to connect bank account");
+        // Reopen dialog on error so user can try again
+        onOpenChange(true);
       } finally {
         setLoading(false);
       }
@@ -181,9 +185,30 @@ export function BankConnectionDialog({ open, onOpenChange, context = "PERSONAL",
     token: selectedProvider === 'PLAID' ? linkToken : null,
     onSuccess,
     onExit: (err, metadata) => {
+      setIsPlaidLinkOpen(false);
       if (err) {
         console.error("Plaid Link error:", err);
         setError(err.error_message || "Connection cancelled");
+        toast.error(err.error_message || "Connection cancelled");
+        // Reopen dialog on error so user can try again
+        onOpenChange(true);
+      } else {
+        // User closed Plaid Link without connecting
+        console.log("Plaid Link closed by user");
+        // Reopen dialog so user can try again or cancel
+        onOpenChange(true);
+      }
+    },
+    onEvent: (eventName, metadata) => {
+      // Log events for debugging
+      if (eventName === 'OPEN') {
+        console.log("Plaid Link opened");
+        setIsPlaidLinkOpen(true);
+      } else if (eventName === 'EXIT' || eventName === 'HANDOFF') {
+        setIsPlaidLinkOpen(false);
+      } else if (eventName === 'ERROR') {
+        console.error("Plaid Link event error:", metadata);
+        setIsPlaidLinkOpen(false);
       }
     },
   };
@@ -192,15 +217,45 @@ export function BankConnectionDialog({ open, onOpenChange, context = "PERSONAL",
 
   // Don't auto-open Plaid - wait for user to click button
   const handlePlaidConnect = () => {
-    if (selectedProvider === 'PLAID' && ready && linkToken) {
-      openPlaidLink();
-    } else if (selectedProvider === 'PLAID' && !linkToken) {
+    if (selectedProvider === 'PLAID' && !linkToken) {
       fetchLinkToken('PLAID');
+      return;
+    }
+
+    if (selectedProvider === 'PLAID' && linkToken) {
+      if (!ready) {
+        toast.error("Plaid Link is not ready yet. Please wait...");
+        return;
+      }
+      
+      try {
+        setIsPlaidLinkOpen(true);
+        // Close the dialog to avoid z-index and event conflicts
+        // Plaid Link will open its own modal overlay
+        onOpenChange(false);
+        
+        // Small delay to ensure dialog closes and DOM updates before Plaid Link opens
+        setTimeout(() => {
+          openPlaidLink();
+        }, 150);
+      } catch (err) {
+        console.error("Error opening Plaid Link:", err);
+        toast.error("Failed to open Plaid Link. Please try again.");
+        setIsPlaidLinkOpen(false);
+        // Reopen dialog on error
+        onOpenChange(true);
+      }
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Don't allow closing if Plaid Link is open
+      if (!newOpen && isPlaidLinkOpen) {
+        return;
+      }
+      onOpenChange(newOpen);
+    }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
